@@ -87,7 +87,7 @@ export default function SaasLandingPage() {
             </button>
 
             <button
-              onClick={() => handleOpenStorefront('gadgetvibe')}
+              onClick={() => handleOpenStorefront('sarwarbooks')}
               className="px-6 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-sm transition flex items-center space-x-2"
             >
               <Laptop className="w-4 h-4 text-sky-400" />
