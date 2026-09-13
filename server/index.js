@@ -32,6 +32,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use(resolveTenant);
 
+// TWA (Trusted Web Activity) Digital Asset Links verification
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  const assetLinksPath = path.resolve(__dirname, '../public/assetlinks.json');
+  if (fs.existsSync(assetLinksPath)) {
+    res.setHeader('Content-Type', 'application/json');
+    return res.sendFile(assetLinksPath);
+  }
+  res.json([]);
+});
+
 app.get('/api/public/stores', (req, res) => {
   const tenants = db.find('tenants', { status: 'active' });
   const plans = db.find('plans');

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.storecraft.app",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:01:07:52:43:71:02:F4:7D:6D:8E:EB:9B:4D:2E:CD:9C:52:A7:28:36:9C:F8:78:42:F2:F2:B2:D6:1A"
+      ]
+    }
+  }
+]
