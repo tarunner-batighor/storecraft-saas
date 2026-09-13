@@ -21,7 +21,9 @@ import {
   BarChart3,
   ExternalLink,
   Laptop,
-  CheckCircle2
+  CheckCircle2,
+  PhoneCall,
+  MessageSquare
 } from 'lucide-react';
 
 export default function SaasLandingPage() {
@@ -31,6 +33,7 @@ export default function SaasLandingPage() {
   const navigate = useNavigate();
 
   const [plans, setPlans] = useState([]);
+  const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'yearly'
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
@@ -78,9 +81,9 @@ export default function SaasLandingPage() {
 
           <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
             {isBn ? (
-              'সম্পূর্ণ আধুনিক মাল্টি-টেন্যান্ট ই-কমার্স সলিউশন। নিজস্ব ব্র্যান্ডিং, কাস্টম ডোমেন, বিকাশ/নগদ পেমেন্ট, পাঠাও ও স্টিডফাস্ট কুরিয়ার ইন্টিগ্রেশন এবং স্বয়ংক্রিয় অর্ডার ম্যানেজমেন্ট।'
+              'বাংলাদেশের উদ্যোক্তা ও মার্চেন্টদের জন্য সম্পূর্ণ আধুনিক মাল্টি-টেন্যান্ট ই-কমার্স সলিউশন। নিজস্ব ব্র্যান্ডিং, কাস্টম ডোমেন, বিকাশ/নগদ পেমেন্ট, পাঠাও ও স্টিডফাস্ট কুরিয়ার বুকিং এবং ইনভয়েস ম্যানেজমেন্ট।'
             ) : (
-              'A comprehensive, multi-tenant e-commerce platform. Complete with customizable branding, custom domains, product variants, bKash & card payments, automated courier consignments (Pathao & Steadfast), and strict row-level tenant data isolation.'
+              'A comprehensive, multi-tenant e-commerce platform for Bangladeshi merchants. Complete with customizable branding, custom domains, bKash & Nagad payments, automated courier consignments (Pathao & Steadfast), and strict row-level tenant data isolation.'
             )}
           </p>
 
@@ -121,7 +124,7 @@ export default function SaasLandingPage() {
             {isBn ? 'প্রি-বিল্ট লাইভ ডেমো স্টোরসমূহ' : 'Pre-Populated Demo Stores'}
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-white">
-            {isBn ? '৩টি সম্পূর্ণ ভিন্নধর্মী লাইভ স্টোর পরখ করুন' : 'Experience 3 Ready-to-Sell Multi-Tenant Stores'}
+            {isBn ? 'সম্পূর্ণ ভিন্নধর্মী লাইভ স্টোর পরখ করুন' : 'Experience Ready-to-Sell Multi-Tenant Stores'}
           </h2>
           <p className="text-xs text-slate-400 max-w-xl mx-auto">
             {isBn ? (
@@ -132,26 +135,24 @@ export default function SaasLandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {availableStores.map((store) => (
             <div
               key={store.id}
-              className="bg-slate-900/90 rounded-3xl border border-slate-800 overflow-hidden p-6 flex flex-col justify-between space-y-6 hover:border-slate-700 transition shadow-xl group"
+              className="bg-slate-900/90 rounded-3xl border border-slate-800 overflow-hidden p-5 flex flex-col justify-between space-y-5 hover:border-slate-700 transition shadow-xl group"
             >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <img
-                      src={store.branding?.logo || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=100&q=80'}
-                      alt={store.name}
-                      className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
-                    />
-                    <div>
-                      <h3 className="font-extrabold text-white text-base group-hover:text-emerald-400 transition">
-                        {store.name}
-                      </h3>
-                      <span className="text-[11px] font-mono text-slate-400 block">{store.slug}.storecraft.io</span>
-                    </div>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={store.branding?.logo || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=100&q=80'}
+                    alt={store.name}
+                    className="w-11 h-11 rounded-2xl object-cover border border-slate-700 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <h3 className="font-extrabold text-white text-sm group-hover:text-emerald-400 transition truncate">
+                      {store.name}
+                    </h3>
+                    <span className="text-[10px] font-mono text-slate-400 block truncate">{store.slug}.storecraft.io</span>
                   </div>
                 </div>
 
@@ -160,38 +161,33 @@ export default function SaasLandingPage() {
                 </p>
 
                 {/* Badges */}
-                <div className="flex flex-wrap gap-2 text-[10px] font-bold">
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">
+                <div className="flex flex-wrap gap-1.5 text-[10px] font-bold pt-1">
+                  <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
                     {store.product_count || 0} {isBn ? 'পণ্য' : 'Products'}
                   </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
+                  <span className="px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
                     {store.plan_name}
                   </span>
-                  {store.custom_domain && (
-                    <span className="px-2.5 py-1 rounded-lg bg-sky-950/60 text-sky-400 border border-sky-800/60">
-                      🌐 {store.custom_domain}
-                    </span>
-                  )}
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2 pt-4 border-t border-slate-800">
+              <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800">
                 <button
                   onClick={() => handleOpenStorefront(store.slug)}
-                  className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition flex items-center justify-center space-x-1"
+                  className="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-bold transition flex items-center justify-center space-x-1"
                 >
-                  <span>{isBn ? 'স্টোরফ্রন্ট দেখুন' : 'Storefront'}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{isBn ? 'স্টোরফ্রন্ট' : 'Store'}</span>
+                  <ExternalLink className="w-3 h-3" />
                 </button>
 
                 <button
                   onClick={() => handleOpenAdmin(store.slug)}
-                  className="py-2.5 px-3 rounded-xl text-white text-xs font-bold transition flex items-center justify-center space-x-1 shadow-md"
+                  className="py-2 px-2.5 rounded-xl text-white text-[11px] font-bold transition flex items-center justify-center space-x-1 shadow-md"
                   style={{ backgroundColor: store.branding?.primary_color || '#0f766e' }}
                 >
-                  <span>{isBn ? 'অ্যাডমিন প্যানেল' : 'Store Admin'}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>{isBn ? 'অ্যাডমিন' : 'Admin'}</span>
+                  <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -207,7 +203,7 @@ export default function SaasLandingPage() {
               {isBn ? 'এন্টারপ্রাইজ গ্রেড মাল্টি-টেন্যান্সি' : 'Enterprise Grade Multi-Tenancy'}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white">
-              {isBn ? 'সম্পূর্ণ স্বয়ংসম্পূর্ণ ফিচারসমূহ' : 'Complete Built-In SaaS Capabilities'}
+              {isBn ? 'বাংলাদেশি ই-কমার্সের সকল স্বয়ংসম্পূর্ণ ফিচার' : 'Complete Built-In SaaS Capabilities'}
             </h2>
           </div>
 
@@ -228,7 +224,7 @@ export default function SaasLandingPage() {
               </div>
               <h3 className="font-bold text-white text-sm">{isBn ? 'কাস্টম ডোমেন ও ডিএনএস' : 'Custom Domains & DNS'}</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                {isBn ? 'আপনার নিজস্ব ডোমেন (যেমন: yourbrand.com) সংযুক্ত করুন খুব সহজে ফ্রি এসএসএল সহ।' : 'Connect your own domain (e.g. mybrand.com) with automated CNAME routing and SSL provisioning.'}
+                {isBn ? 'আপনার নিজস্ব ডোমেন (যেমন: yourbrand.com বা .com.bd) সংযুক্ত করুন খুব সহজে ফ্রি এসএসএল সহ।' : 'Connect your own domain (e.g. mybrand.com or .com.bd) with automated CNAME routing and SSL provisioning.'}
               </p>
             </div>
 
@@ -275,62 +271,119 @@ export default function SaasLandingPage() {
         </div>
       </div>
 
-      {/* SaaS Subscription Plans Matrix */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
-        <div className="text-center space-y-2">
+      {/* SaaS Subscription Plans Matrix (Bangladeshi Benchmark Pricing) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
+        <div className="text-center space-y-3">
           <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
-            {isBn ? 'সাবস্ক্রিপশন প্যাকেজসমূহ' : 'SaaS Subscription Tiers'}
+            {isBn ? 'সাশ্রয়ী সাবস্ক্রিপশন প্যাকেজ' : 'SaaS Subscription Tiers'}
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-white">
-            {isBn ? 'স্বচ্ছ ও সাশ্রয়ী মূল্যের প্যাকেজ' : 'Transparent, Scalable SaaS Pricing'}
+          <h2 className="text-2xl sm:text-4xl font-black text-white">
+            {isBn ? 'বাংলাদেশের ই-কমার্স উদ্যোক্তাদের জন্য স্বচ্ছ প্রাইসিং' : 'Transparent, Scalable SaaS Pricing'}
           </h2>
+          <p className="text-xs text-slate-400 max-w-xl mx-auto">
+            {isBn
+              ? 'কোনো গোপন চার্জ নেই। ফ্রি ট্রায়াল দিয়ে শুরু করুন এবং ব্যবসা বড় হওয়ার সাথে সাথে আপগ্রেড করুন।'
+              : 'No hidden setup fees. Start free and scale seamlessly as your business and order volume grow.'}
+          </p>
+
+          {/* Monthly / Yearly Switcher */}
+          <div className="inline-flex items-center bg-slate-900 p-1 rounded-2xl border border-slate-800 mt-4">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition ${
+                billingCycle === 'monthly'
+                  ? 'bg-slate-800 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {isBn ? 'মাসিক বিলিং' : 'Monthly'}
+            </button>
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
+                billingCycle === 'yearly'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>{isBn ? 'বার্ষিক বিলিং' : 'Yearly'}</span>
+              <span className="bg-amber-400 text-slate-950 text-[10px] px-1.5 py-0.2 rounded font-black">
+                {isBn ? '২ মাস ফ্রি' : '2 Mo Free'}
+              </span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {plans.map((p) => (
-            <div
-              key={p.id}
-              className={`p-6 rounded-3xl border flex flex-col justify-between transition relative ${
-                p.is_popular
-                  ? 'bg-slate-900 border-emerald-500 shadow-xl ring-1 ring-emerald-500'
-                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
-              }`}
-            >
-              {p.is_popular && (
-                <span className="absolute -top-3 right-4 bg-emerald-500 text-slate-950 text-[10px] font-black px-3 py-0.5 rounded-full uppercase">
-                  {isBn ? 'সেরা প্যাকেজ' : 'Best Value'}
-                </span>
-              )}
+          {plans.map((p) => {
+            const price = billingCycle === 'yearly' ? p.price_yearly : p.price_monthly;
+            const featuresList = isBn && p.features ? p.features : (p.features_en || p.features);
 
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-base font-extrabold text-white">{p.name}</h3>
-                  <div className="flex items-baseline space-x-1 mt-2">
-                    <span className="text-3xl font-black text-white">৳{p.price_monthly * 100 || p.price_monthly}</span>
-                    <span className="text-xs text-slate-400">{isBn ? '/মাসিক' : '/month'}</span>
+            return (
+              <div
+                key={p.id}
+                className={`p-6 rounded-3xl border flex flex-col justify-between transition relative ${
+                  p.is_popular
+                    ? 'bg-slate-900 border-emerald-500 shadow-2xl ring-1 ring-emerald-500'
+                    : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {p.is_popular && (
+                  <span className="absolute -top-3 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-[10px] font-black px-3 py-0.5 rounded-full uppercase shadow-md">
+                    {isBn ? 'সবচেয়ে জনপ্রিয়' : 'Best Value'}
+                  </span>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-black text-white">
+                      {isBn && p.name_bn ? p.name_bn : p.name}
+                    </h3>
+                    {p.badge && (
+                      <span className="text-[11px] text-emerald-400 font-semibold block mt-0.5">
+                        {p.badge}
+                      </span>
+                    )}
+                    <div className="flex items-baseline space-x-1 mt-3">
+                      <span className="text-3xl font-black text-white">
+                        {price === 0 ? (isBn ? '৳০' : '৳0') : `৳${price.toLocaleString()}`}
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        {billingCycle === 'yearly' ? (isBn ? '/বার্ষিক' : '/yr') : (isBn ? '/মাসিক' : '/month')}
+                      </span>
+                    </div>
                   </div>
+
+                  <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">
+                    {featuresList?.map((f, idx) => (
+                      <li key={idx} className="flex items-start space-x-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <span className="leading-tight">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                <ul className="space-y-2 text-xs text-slate-300 pt-3 border-t border-slate-800">
-                  {p.features?.map((f, idx) => (
-                    <li key={idx} className="flex items-start space-x-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="pt-6">
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className={`w-full py-3 rounded-2xl font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                      p.is_popular
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                    }`}
+                  >
+                    <span>
+                      {price === 0
+                        ? (isBn ? 'ফ্রি ট্রায়াল শুরু করুন' : 'Start Free Trial')
+                        : (isBn ? `${p.name} প্যাকেজে শুরু করুন` : `Get Started with ${p.name}`)}
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-
-              <div className="pt-6">
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition"
-                >
-                  {isBn ? `${p.name} প্যাকেজে শুরু করুন` : `Start Store on ${p.name}`}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

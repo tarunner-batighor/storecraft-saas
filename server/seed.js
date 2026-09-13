@@ -1,97 +1,134 @@
 import db from './db.js';
 import bcrypt from 'bcryptjs';
 
-export function runSeed(force = false) {
-  if (!force && db.find('tenants').length >= 4) {
-    console.log('[Seed] Database already contains all tenants including Sarwar Book Store.');
-    return;
-  }
-
-  console.log('[Seed] Seeding fresh multi-tenant SaaS database with Sarwar Ahmad Book Store...');
+export function seedDatabase() {
+  // Clear existing records
   db.reset();
 
-  const passwordHash = bcrypt.hashSync('password123', 8);
+  console.log('[Seed] Seeding Bangladeshi standard SaaS plans and multi-tenant stores...');
 
-  // 1. SaaS Subscription Plans
+  // 1. SaaS Subscription Plans (Standard Bangladeshi Pricing in BDT)
   const plans = [
     {
       id: 'plan-free',
       name: 'Free Trial',
+      name_bn: 'ফ্রি ট্রায়াল (নতুনদের জন্য)',
       slug: 'free',
       price_monthly: 0,
       price_yearly: 0,
-      max_products: 15,
+      max_products: 25,
       max_staff: 1,
-      commission_percentage: 5.0,
+      commission_percentage: 3.0,
       custom_domain_allowed: false,
       is_popular: false,
+      badge: '১৪ দিনের ফ্রি ট্রায়াল',
       features: [
-        'Up to 15 Products',
-        'Standard Subdomain (store.storecraft.io)',
-        'Basic Storefront Themes',
-        'Cash on Delivery & bKash',
-        'Standard Analytics',
-        '5.0% Platform Commission'
+        'সর্বোচ্চ ২৫টি প্রোডাক্ট আপলোড',
+        'স্ট্যান্ডার্ড সাবডোমেন (yourstore.storecraft.io)',
+        'ক্যাশ অন ডেলিভারি (COD) ও ম্যানুয়াল বিকাশ',
+        'বেসিক মোবাইল রেসপনসিভ PWA স্টোরফ্রন্ট',
+        'স্ট্যান্ডার্ড অর্ডার ও ইনভেন্টরি ট্র্যাকিং',
+        '৩% প্ল্যাটফর্ম ট্রানজ্যাকশন ফি'
+      ],
+      features_en: [
+        'Up to 25 Products',
+        'Free Subdomain (yourstore.storecraft.io)',
+        'Cash on Delivery & Manual bKash/Nagad',
+        'Mobile Responsive PWA Storefront',
+        'Basic Order & Inventory Management',
+        '3.0% Platform Transaction Fee'
       ]
     },
     {
       id: 'plan-starter',
       name: 'Starter Store',
+      name_bn: 'স্টার্টার / এফ-কমার্স',
       slug: 'starter',
       price_monthly: 999,
       price_yearly: 9990,
-      max_products: 100,
-      max_staff: 3,
-      commission_percentage: 2.5,
+      max_products: 250,
+      max_staff: 2,
+      commission_percentage: 1.5,
       custom_domain_allowed: true,
-      is_popular: true,
+      is_popular: false,
+      badge: 'ক্ষুদ্র ও এফ-কমার্স উদ্যোক্তা',
       features: [
-        'Up to 100 Products',
-        'Custom Domain Mapping (yourbrand.com)',
-        'Courier Automation (Pathao, Steadfast)',
-        'Automated Invoice & Packing Slips',
-        'Coupon & Flash Deals Engine',
-        '2.5% Platform Commission'
+        'সর্বোচ্চ ২৫০টি প্রোডাক্ট ও আনলিমিটেড অর্ডার',
+        'নিজস্ব কাস্টম ডোমেন কানেকশন (.com / .com.bd)',
+        'বিকাশ ও নগদ অনলাইন অটো-পেমেন্ট গেটওয়ে',
+        'পাঠাও ও স্টিডফাস্ট ১-ক্লিক কুরিয়ার বুকিং',
+        '২ জন স্টাফ অ্যাকাউন্ট ও অটো ইনভয়েস স্লিপ',
+        '১.৫% প্ল্যাটফর্ম ট্রানজ্যাকশন ফি'
+      ],
+      features_en: [
+        'Up to 250 Products & Unlimited Orders',
+        'Custom Domain Support (.com / .com.bd)',
+        'bKash & Nagad Online Payment Gateways',
+        'Pathao & Steadfast 1-Click Courier Dispatch',
+        '2 Staff Accounts & Auto PDF Invoices',
+        '1.5% Platform Transaction Fee'
       ]
     },
     {
       id: 'plan-growth',
       name: 'Growth Business',
+      name_bn: 'গ্রোথ বিজনেস (জনপ্রিয়)',
       slug: 'growth',
-      price_monthly: 2499,
-      price_yearly: 24990,
-      max_products: 500,
-      max_staff: 10,
-      commission_percentage: 1.0,
+      price_monthly: 1999,
+      price_yearly: 19990,
+      max_products: 1000,
+      max_staff: 5,
+      commission_percentage: 0.5,
       custom_domain_allowed: true,
-      is_popular: false,
+      is_popular: true,
+      badge: 'সবচেয়ে জনপ্রিয় (Best Value)',
       features: [
-        'Up to 500 Products',
-        'Custom Domain + Auto SSL',
-        'Full Courier API Dispatch',
-        'Staff Permissions (RBAC)',
-        'Sales Export CSV & Analytics',
-        'Priority 24/7 Phone Support'
+        '১,০০০টি প্রোডাক্ট ও আনলিমিটেড ব্যান্ডউইথ',
+        'কাস্টম ডোমেন + ফ্রি SSL সার্টিফিকেট',
+        'অটোমেটেড SMS নোটিফিকেশন গেটওয়ে',
+        'মাল্টি-ভেরিয়েন্ট ইনভেন্টরি ও সাইজ/কালার স্টক',
+        'ফেসবুক পিক্সেল ও অ্যাডভান্সড অ্যানালিটিক্স',
+        '৫ জন স্টাফ অ্যাকাউন্ট ও ২৪/৭ প্রায়োরিটি সাপোর্ট',
+        'মাত্র ০.৫% প্ল্যাটফর্ম ফি'
+      ],
+      features_en: [
+        'Up to 1,000 Products & Unlimited Traffic',
+        'Custom Domain + Free SSL Certificate',
+        'Automated Customer SMS Notifications',
+        'Multi-Variant Matrix (Size, Color, SKU)',
+        'Facebook Pixel & Advanced Reports',
+        '5 Staff Accounts with RBAC Permissions',
+        'Low 0.5% Platform Fee'
       ]
     },
     {
       id: 'plan-enterprise',
       name: 'Enterprise VIP',
+      name_bn: 'এন্টারপ্রাইজ কর্পোরেট',
       slug: 'enterprise',
-      price_monthly: 5999,
-      price_yearly: 59990,
+      price_monthly: 4999,
+      price_yearly: 49990,
       max_products: 10000,
-      max_staff: 50,
+      max_staff: 20,
       commission_percentage: 0.0,
       custom_domain_allowed: true,
       is_popular: false,
+      badge: 'টপ ব্র্যান্ড ও বড় শোরুম',
       features: [
-        'Unlimited Products & Storage',
-        '0% Platform Transaction Fee',
-        'Multi-Warehouse Inventory',
-        'Dedicated Account Manager',
-        'Custom Webhook & API Access',
-        'White-Label SLA & 99.99% Uptime'
+        'আনলিমিটেড প্রোডাক্ট ও আনলিমিটেড ফাইল স্টোরেজ',
+        '০% প্ল্যাটফর্ম কমিশন (জিরো ফি)',
+        'মাল্টি-ওয়্যারহাউস ও শাখাভিত্তিক স্টক ট্র্যাকিং',
+        'ডেডিকেটেড একাউন্ট ম্যানেজার ও ফোন সাপোর্ট',
+        'কাস্টম থিম স্টাইলিং ও এপিআই/ওয়েবহুক এক্সেস',
+        '২০ জন স্টাফ একাউন্ট ও ৯৯.৯% আপটাইম SLA'
+      ],
+      features_en: [
+        'Unlimited Products & Cloud Storage',
+        '0% Platform Commission (Zero Fee)',
+        'Multi-Warehouse & Branch Stock Control',
+        'Dedicated Account Manager & Phone Support',
+        'Custom Webhooks & REST API Access',
+        '20 Staff Accounts & 99.9% Uptime SLA'
       ]
     }
   ];
@@ -104,7 +141,7 @@ export function runSeed(force = false) {
     role: 'super_admin',
     name: 'Abdul Hadi Bin Masud (Super Admin)',
     email: 'abdulhadibinmasud775@gmail.com',
-    password_hash: bcrypt.hashSync('admin123', 8),
+    password_hash: bcrypt.hashSync('password123', 8),
     phone: '+880 1711-000000',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     permissions: ['all'],
@@ -164,29 +201,25 @@ export function runSeed(force = false) {
       ]
     },
     courier_settings: {
-      pathao: { enabled: true, default: true },
-      steadfast: { enabled: true }
+      pathao: { enabled: true, default: true, client_id: 'PT-SARWAR-01', secret: 'pt_live_key_991' },
+      steadfast: { enabled: true, default: false, api_key: 'st_live_992' },
+      redx: { enabled: false }
     },
     payment_settings: {
       cod_enabled: true,
       bkash_enabled: true,
-      bkash_type: 'Merchant / Personal',
       bkash_number: '01712345678',
-      bkash_instructions: 'বিকাশ অ্যাপ থেকে Send Money / Payment করে TrxID নিচে লিখুন।',
       nagad_enabled: true,
       nagad_number: '01712345678',
-      stripe_enabled: false
+      card_enabled: true
     }
   });
 
-  // Categories for Sarwar Book Store
   const catIslamic = db.insert('categories', {
     tenant_id: tenantBooks.id,
     name: 'ইসলামিক ও জীবনঘনিষ্ঠ',
     slug: 'islamic-books',
-    description: 'আত্মশুদ্ধি, ঈমান ও জীবন পরিবর্তনের সেরা বইসমূহ',
     image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
-    icon: 'BookOpen',
     is_featured: true,
     sort_order: 1
   }, tenantBooks.id);
@@ -195,9 +228,7 @@ export function runSeed(force = false) {
     tenant_id: tenantBooks.id,
     name: 'আত্মউন্নয়ন ও মোটিভেশন',
     slug: 'self-development',
-    description: 'ব্যক্তিগত দক্ষতা ও মানসিক শক্তি বৃদ্ধির বই',
     image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=400&q=80',
-    icon: 'Sparkles',
     is_featured: true,
     sort_order: 2
   }, tenantBooks.id);
@@ -206,169 +237,166 @@ export function runSeed(force = false) {
     tenant_id: tenantBooks.id,
     name: 'ক্যারিয়ার ও প্রোগ্রামিং',
     slug: 'tech-career',
-    description: 'কম্পিউটার সায়েন্স, কোডিং ও ফ্রিল্যান্সিং গাইডবুক',
     image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=400&q=80',
-    icon: 'Code',
     is_featured: true,
     sort_order: 3
   }, tenantBooks.id);
 
-  // Products for Sarwar Book Store
+  // Books Products
   db.insert('products', {
     tenant_id: tenantBooks.id,
     name: 'বেলা ফুরাবার আগে (হার্ডকভার) - আরিফ আজাদ',
     slug: 'bela-furabar-age',
-    sku: 'BOOK-AZAD-01',
+    sku: 'BOOK-BFA-01',
     category_id: catIslamic.id,
-    type: 'physical',
     price: 320,
     compare_at_price: 380,
-    stock_quantity: 45,
+    stock_quantity: 48,
     is_published: true,
     is_featured: true,
     is_flash_deal: true,
-    flash_deal_discount: 16,
-    short_description: 'জীবন পরিবর্তনকারী ও আত্মশুদ্ধির সেরা বেস্টসেলার বই।',
-    description: 'জীবনের প্রতিটি মুহূর্তে কীভাবে সঠিক পথে চলা যায় এবং দ্বীনের আলোকে সুন্দর জীবন গড়া যায়—তা নিয়ে চমৎকার রচনা।',
-    images: ['https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80'],
-    rating_avg: 5.0,
-    rating_count: 24,
-    tags: ['Best Seller', 'Islamic', 'Hardcover']
+    flash_deal_discount: 15,
+    images: [
+      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80'
+    ],
+    description: 'বেলা ফুরাবার আগে বইটি এমন একটি বই, যা হারিয়ে যাওয়া আত্মাকে ফিরিয়ে আনে আত্মশুদ্ধির চিরচেনা রাজপথে। সমকালীন যুবসমাজের জন্য এক অনন্য উপহার।',
+    specifications: { 'লেখক': 'আরিফ আজাদ', 'প্রকাশনী': 'সমকালীন প্রকাশন', 'কভার': 'হার্ডকভার', 'পৃষ্ঠা সংখ্যা': '১৯২' },
+    rating_avg: 4.9,
+    rating_count: 64
   }, tenantBooks.id);
 
   db.insert('products', {
     tenant_id: tenantBooks.id,
     name: 'প্যারাডক্সিক্যাল সাজিদ ১ ও ২ (কম্বো সেট)',
     slug: 'paradoxical-sajid-combo',
-    sku: 'BOOK-SAJID-SET',
+    sku: 'BOOK-PS-COMBO',
     category_id: catIslamic.id,
-    type: 'physical',
-    price: 550,
-    compare_at_price: 650,
-    stock_quantity: 30,
+    price: 580,
+    compare_at_price: 700,
+    stock_quantity: 35,
     is_published: true,
     is_featured: true,
-    is_flash_deal: true,
-    flash_deal_discount: 15,
-    short_description: 'যুক্তি ও বৈজ্ঞানিক প্রমাণের আলোকে সংশয়ের উত্তর।',
-    description: 'তরুণ প্রজন্মের সংশয় ও প্রশ্নের যৌক্তিক সমাধান নিয়ে আরিফ আজাদের আলোচিত মাস্টারপিস বইয়ের পূর্ণাঙ্গ কম্বো।',
-    images: ['https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80'],
-    rating_avg: 4.9,
-    rating_count: 38,
-    tags: ['Combo', 'Islamic', 'Philosophy']
+    images: [
+      'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=800&q=80'
+    ],
+    description: 'যুক্তিবাদী সাজিদের সাথে ধর্ম ও বিজ্ঞানের চমৎকার সংমিশ্রণ। ইসলাম সম্পর্কিত জটিল সংশয় ও প্রশ্নের বুদ্ধিদীপ্ত উত্তর।',
+    specifications: { 'লেখক': 'আরিফ আজাদ', 'প্রকাশনী': 'গার্ডিয়ান পাবলিকেশনস', 'সংস্করণ': 'নতুন মুদ্রণ ২০২৬' },
+    rating_avg: 4.95,
+    rating_count: 128
   }, tenantBooks.id);
 
   db.insert('products', {
     tenant_id: tenantBooks.id,
     name: 'রিচার্জ আপনার ডাউন ব্যাটারি - ঝংকার মাহবুব',
     slug: 'recharge-down-battery',
-    sku: 'BOOK-JHANKAR-01',
+    sku: 'BOOK-RDB-01',
     category_id: catSelf.id,
-    type: 'physical',
     price: 280,
     compare_at_price: 350,
-    stock_quantity: 50,
+    stock_quantity: 60,
     is_published: true,
     is_featured: true,
-    is_flash_deal: false,
-    short_description: 'হাল ছেড়ে দেওয়া মনকে চাঙ্গা করতে দারুণ মোটিভেশনাল বই।',
-    description: 'আলসেমি দূর করে কাজে মনোযোগী হওয়ার এবং ক্যারিয়ারে সফল হওয়ার ব্যবহারিক টিপস।',
-    images: ['https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80'
+    ],
+    description: 'হতাশা ও অলসতাকে বিদায় জানিয়ে জীবনের লক্ষ্য অর্জনে নতুন উদ্দীপনা যোগাতে অত্যন্ত অনুপ্রেরণামূলক একটি বই।',
+    specifications: { 'লেখক': 'ঝংকার মাহবুব', 'প্রকাশনী': 'আদর্শ', 'বিষয়': 'মোটিভেশন' },
     rating_avg: 4.8,
-    rating_count: 19,
-    tags: ['Self Help', 'Motivation']
+    rating_count: 52
   }, tenantBooks.id);
 
   db.insert('products', {
     tenant_id: tenantBooks.id,
     name: 'হাতে কলমে ফুলস্ট্যাক ওয়েব ডেভেলপমেন্ট',
     slug: 'hands-on-fullstack-web-dev',
-    sku: 'BOOK-CODE-01',
+    sku: 'BOOK-DEV-01',
     category_id: catTech.id,
-    type: 'physical',
-    price: 580,
-    compare_at_price: 680,
+    price: 650,
+    compare_at_price: 800,
     stock_quantity: 25,
     is_published: true,
     is_featured: true,
-    is_flash_deal: false,
-    short_description: 'HTML, CSS, JavaScript, React ও Node.js শেখার সম্পূর্ণ বাংলা গাইড।',
-    description: 'প্র্যাক্টিক্যাল প্রজেক্ট ভিত্তিক ওয়েব ডেভেলপমেন্ট ও ফ্রিল্যান্সিং ক্যারিয়ার গাইড।',
-    images: ['https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=800&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80'
+    ],
+    description: 'React, Node.js, Express এবং আধুনিক ক্লাউড আর্কিটেকচার নিয়ে প্রজেক্টভিত্তিক ফুলস্ট্যাক ডেভেলপমেন্ট শেখার পূর্ণাঙ্গ বাংলা বই।',
+    specifications: { 'লেখক': 'আব্দুল হাদী', 'কভার': 'হার্ডকভার', 'পৃষ্ঠা': '৩২০' },
     rating_avg: 5.0,
-    rating_count: 12,
-    tags: ['Programming', 'Web Dev']
+    rating_count: 19
   }, tenantBooks.id);
 
-  // Shipping & Coupons for Sarwar Book Store
+  // Shipping Zones for Books
   db.insert('shipping_zones', {
     tenant_id: tenantBooks.id,
     name: 'ঢাকা সিটির ভেতরে হোম ডেলিভারি',
-    cities: ['Dhaka'],
+    cities: ['Dhaka', 'ঢাকা'],
     rate: 60,
     free_shipping_threshold: 1500,
-    estimated_days: '১-২ দিন'
+    estimated_days: '২৪-৪৮ ঘণ্টা'
   }, tenantBooks.id);
 
   db.insert('shipping_zones', {
     tenant_id: tenantBooks.id,
     name: 'ঢাকার বাইরে সারা বাংলাদেশে হোম ডেলিভারি',
-    cities: ['All Districts'],
-    rate: 100,
-    free_shipping_threshold: 2000,
-    estimated_days: '২-৩ দিন'
+    cities: ['All Bangladesh', 'সারা বাংলাদেশ'],
+    rate: 110,
+    free_shipping_threshold: 2500,
+    estimated_days: '২-৩ কার্যদিবস'
   }, tenantBooks.id);
 
+  // Coupon for Books
   db.insert('coupons', {
     tenant_id: tenantBooks.id,
     code: 'BOOK10',
-    type: 'percentage',
-    value: 10,
-    min_order_amount: 500,
-    max_discount: 200,
+    discount_type: 'percentage',
+    discount_value: 10,
+    min_purchase_amount: 500,
+    max_discount_amount: 200,
     usage_limit: 500,
-    usage_count: 14,
-    is_active: true
+    usage_count: 42,
+    is_active: true,
+    expires_at: '2027-12-31T23:59:59Z'
   }, tenantBooks.id);
 
-  // Users for Sarwar Book Store
+  // Store Owner User for Sarwar Books
   db.insert('users', {
-    id: 'user-sarwar-owner',
+    id: 'user-owner-sarwar',
     tenant_id: tenantBooks.id,
     role: 'store_owner',
     name: 'Sarwar Ahmad',
     email: 'sarwar@gmail.com',
     password_hash: bcrypt.hashSync('owner123', 8),
     phone: '+880 1712-345678',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-    permissions: ['all'],
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
     is_active: true
   });
 
-  // Sample Order for Sarwar Book Store
+  // Sample Order for Sarwar Books
   db.insert('orders', {
-    order_number: 'SB-2026-1001',
+    id: 'ord-sb-1001',
+    order_number: 'SB-1001',
     tenant_id: tenantBooks.id,
     customer_name: 'তানভীর আহমেদ',
     customer_email: 'tanvir@gmail.com',
-    customer_phone: '+880 1711-223344',
+    customer_phone: '01711223344',
     shipping_address: {
       recipient_name: 'তানভীর আহমেদ',
-      phone: '+880 1711-223344',
+      phone: '01711223344',
+      address_line1: 'বাসা #৪৪, রোড #৭, ধানমন্ডি',
       city: 'Dhaka',
-      area: 'Dhanmondi',
-      street_address: 'House #45, Road #7/A, Dhanmondi, Dhaka'
+      postal_code: '1209'
     },
     items: [
       {
-        product_id: 'p1',
+        product_id: 'prod-1',
         name: 'বেলা ফুরাবার আগে (হার্ডকভার)',
         price: 320,
         quantity: 1,
         total: 320
       },
       {
-        product_id: 'p2',
+        product_id: 'prod-3',
         name: 'রিচার্জ আপনার ডাউন ব্যাটারি',
         price: 280,
         quantity: 1,
@@ -475,18 +503,6 @@ export function runSeed(force = false) {
     email: 'owner@gadgetvibe.com',
     password_hash: bcrypt.hashSync('owner123', 8),
     phone: '+880 1811-223344',
-    is_active: true
-  });
-
-  // Customer account
-  db.insert('users', {
-    id: 'user-customer-tanvir',
-    tenant_id: tenantBooks.id,
-    role: 'customer',
-    name: 'Tanvir Ahmed',
-    email: 'tanvir@gmail.com',
-    password_hash: bcrypt.hashSync('customer123', 8),
-    phone: '+880 1711-223344',
     is_active: true
   });
 
@@ -668,5 +684,23 @@ export function runSeed(force = false) {
     is_active: true
   });
 
-  console.log('[Seed] All 4 multi-tenant stores initialized successfully!');
+  // Customer account
+  db.insert('users', {
+    id: 'user-customer-tanvir',
+    tenant_id: tenantBooks.id,
+    role: 'customer',
+    name: 'Tanvir Ahmed',
+    email: 'tanvir@gmail.com',
+    password_hash: bcrypt.hashSync('customer123', 8),
+    phone: '+880 1711-223344',
+    is_active: true
+  });
+
+  console.log('[Seed] All 4 multi-tenant stores and Bangladeshi standard SaaS plans initialized successfully!');
+}
+
+export function runSeed(force = false) {
+  if (force || db.count('tenants') === 0) {
+    seedDatabase();
+  }
 }
