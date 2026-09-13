@@ -17,14 +17,25 @@ router.get('/info', requireTenant, (req, res) => {
       slug: tenant.slug,
       custom_domain: tenant.custom_domain,
       branding: tenant.branding,
+      payment_settings: tenant.payment_settings || {
+        cod_enabled: true,
+        bkash_enabled: true,
+        bkash_type: 'Personal',
+        bkash_number: '01766299775',
+        nagad_enabled: true,
+        nagad_type: 'Personal',
+        nagad_number: '01766299775'
+      },
       payment_methods: {
         cod: tenant.payment_settings?.cod_enabled ?? true,
         bkash: tenant.payment_settings?.bkash_enabled ?? true,
-        bkash_type: tenant.payment_settings?.bkash_type,
-        bkash_number: tenant.payment_settings?.bkash_number,
-        bkash_instructions: tenant.payment_settings?.bkash_instructions,
-        nagad: tenant.payment_settings?.nagad_enabled ?? false,
-        nagad_number: tenant.payment_settings?.nagad_number,
+        bkash_type: tenant.payment_settings?.bkash_type || 'Personal',
+        bkash_number: tenant.payment_settings?.bkash_number || '01766299775',
+        bkash_instructions: tenant.payment_settings?.bkash_instructions || 'বিকাশ পার্সোনাল নম্বরে (01766299775) Send Money করে ট্রানজেকশন আইডি দিন',
+        nagad: tenant.payment_settings?.nagad_enabled ?? true,
+        nagad_type: tenant.payment_settings?.nagad_type || 'Personal',
+        nagad_number: tenant.payment_settings?.nagad_number || '01766299775',
+        nagad_instructions: tenant.payment_settings?.nagad_instructions || 'নগদ পার্সোনাল নম্বরে (01766299775) Send Money করে ট্রানজেকশন আইডি দিন',
         stripe: tenant.payment_settings?.stripe_enabled ?? false,
         stripe_public_key: tenant.payment_settings?.stripe_public_key
       }

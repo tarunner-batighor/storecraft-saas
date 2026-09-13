@@ -14,11 +14,17 @@ router.get('/dashboard', (req, res) => {
     const orders = db.find('orders', {}, req.tenant.id);
     const products = db.find('products', {}, req.tenant.id);
     const customers = db.find('users', { role: 'customer' }, req.tenant.id);
+    const plan = db.findById('plans', req.tenant.plan_id) || { commission_percentage: 0 };
 
     const totalOrders = orders.length;
     const grossRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
     const paidOrders = orders.filter(o => o.payment_status === 'paid');
     const netPaidRevenue = paidOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    
+    // Total Platform Commission
+    const totalPlatformCommission = orders.reduce((sum, o) => sum + (o.platform_commission_amount || Math.round((o.total_amount || 0) * (plan.commission_percentage || 0) / 100)), 0);
+    const netStoreRevenue = grossRevenue - totalPlatformCommission;
+    
     const avgOrderValue = totalOrders > 0 ? Math.round(grossRevenue / totalOrders) : 0;
     const pendingFulfillments = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
 
@@ -103,6 +109,9 @@ router.get('/dashboard', (req, res) => {
         total_orders: totalOrders,
         gross_revenue: grossRevenue,
         net_paid_revenue: netPaidRevenue,
+        platform_commission: totalPlatformCommission,
+        commission_rate: plan.commission_percentage || 0,
+        net_store_revenue: netStoreRevenue,
         avg_order_value: avgOrderValue,
         pending_fulfillments: pendingFulfillments,
         total_products: products.length,
@@ -133,7 +142,7 @@ router.get('/dashboard', (req, res) => {
 router.get('/export-csv', (req, res) => {
   try {
     const orders = db.find('orders', {}, req.tenant.id);
-    const headers = ['Order Number', 'Date', 'Customer Name', 'Phone', 'Items Count', 'Subtotal (BDT)', 'Discount', 'Shipping', 'Total (BDT)', 'Payment Method', 'Payment Status', 'Fulfillment Status', 'Courier'];
+    const headers = ['Order Number', 'Date', 'Customer Name', 'Phone', 'Items Count', 'Subtotal (BDT)', 'Discount', 'Shipping', 'Total (BDT)', 'Commission (BDT)', 'Net Revenue (BDT)', 'Payment Method', 'Payment Status', 'Fulfillment Status', 'Courier'];
     const rows = orders.map(o => [
       o.order_number,
       o.created_at ? o.created_at.split('T')[0] : '',
@@ -144,6 +153,8 @@ router.get('/export-csv', (req, res) => {
       o.discount_amount || 0,
       o.shipping_cost || 0,
       o.total_amount || 0,
+      o.platform_commission_amount || 0,
+      o.store_net_revenue || o.total_amount || 0,
       o.payment_method || '',
       o.payment_status || '',
       o.status || '',

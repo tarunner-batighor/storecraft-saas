@@ -43,7 +43,7 @@ export default function StorefrontHeader() {
   const primaryColor = branding?.primary_color || '#0284c7';
 
   return (
-    <header className="sticky top-[37px] z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+    <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Top Announcement Bar */}
       {branding?.top_bar_enabled !== false && branding?.top_bar_text && (
         <div

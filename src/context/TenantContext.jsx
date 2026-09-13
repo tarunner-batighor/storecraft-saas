@@ -43,7 +43,7 @@ export function TenantProvider({ children }) {
         document.documentElement.style.setProperty('--brand-secondary', secondary);
         document.documentElement.style.setProperty('--brand-accent', accent);
         
-        document.title = `${res.store.name} | StoreCraft Platform`;
+        document.title = res.store.branding?.tagline ? `${res.store.name} - ${res.store.branding.tagline}` : res.store.name;
       }
     } catch (err) {
       console.error('Failed to load store info for ' + targetSlug, err);

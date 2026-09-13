@@ -26,7 +26,7 @@ router.post('/checkout', (req, res) => {
     if (!customer_name || !customer_phone || !items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Name, phone, and valid cart items are required to place an order.'
+        message: 'নাম, মোবাইল নম্বর এবং পণ্য নির্বাচন আবশ্যক (Name, phone, and cart items required).'
       });
     }
 
@@ -123,6 +123,13 @@ router.post('/checkout', (req, res) => {
 
     const totalAmount = Math.max(0, subtotal - discountAmount + shippingCost);
 
+    // Platform Commission Calculation based on SaaS plan
+    const plan = db.findById('plans', req.tenant.plan_id) || { commission_percentage: 0 };
+    const commissionRate = plan.commission_percentage !== undefined ? plan.commission_percentage : 0;
+    const platformCommission = Math.round((totalAmount * commissionRate) / 100);
+    const storeNetRevenue = totalAmount - platformCommission;
+
+    // Deduct stock
     for (const item of items) {
       const product = db.findById('products', item.product_id, req.tenant.id);
       if (product && product.track_quantity) {
@@ -152,7 +159,7 @@ router.post('/checkout', (req, res) => {
     const orderNumber = `${storePrefix}-${currentYear}-${1001 + existingCount}`;
 
     let paymentStatus = 'unpaid';
-    if (payment_method === 'bkash' && payment_trx_id) {
+    if ((payment_method === 'bkash' || payment_method === 'nagad') && payment_trx_id) {
       paymentStatus = 'paid';
     } else if (payment_method === 'stripe' || payment_method === 'card') {
       paymentStatus = 'paid';
@@ -178,6 +185,9 @@ router.post('/checkout', (req, res) => {
       coupon_code: appliedCoupon,
       shipping_cost: shippingCost,
       total_amount: totalAmount,
+      platform_commission_rate: commissionRate,
+      platform_commission_amount: platformCommission,
+      store_net_revenue: storeNetRevenue,
       payment_method,
       payment_status: paymentStatus,
       payment_trx_id: payment_trx_id || null,
@@ -188,7 +198,7 @@ router.post('/checkout', (req, res) => {
       timeline: [
         {
           status: 'pending',
-          note: `Order placed online via ${payment_method.toUpperCase()}`,
+          note: `অর্ডার গ্রহণ করা হয়েছে (${payment_method.toUpperCase()})`,
           created_at: new Date().toISOString(),
           created_by: customer_name
         }
@@ -199,8 +209,8 @@ router.post('/checkout', (req, res) => {
 
     db.insert('notifications', {
       tenant_id: req.tenant.id,
-      title: 'New Order Received!',
-      message: `Order #${newOrder.order_number} for ৳${newOrder.total_amount.toLocaleString()} by ${customer_name}`,
+      title: 'নতুন অর্ডার এসেছে!',
+      message: `অর্ডার #${newOrder.order_number} - মোট ৳${newOrder.total_amount.toLocaleString()} (গ্রাহক: ${customer_name})`,
       type: 'order',
       is_read: false,
       link: `/admin/orders/${newOrder.id}`
@@ -208,7 +218,7 @@ router.post('/checkout', (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Order placed successfully!',
+      message: 'অর্ডারটি সফলভাবে সম্পন্ন হয়েছে!',
       order: newOrder
     });
   } catch (err) {
@@ -222,7 +232,7 @@ router.get('/track/:orderNumber', (req, res) => {
   const { orderNumber } = req.params;
   const order = db.findOne('orders', o => (o.order_number === orderNumber || o.id === orderNumber), req.tenant.id);
   if (!order) {
-    return res.status(404).json({ success: false, message: 'Order not found with this tracking ID' });
+    return res.status(404).json({ success: false, message: 'এই নম্বরে কোনো অর্ডার খুঁজে পাওয়া যায়নি' });
   }
 
   res.json({
@@ -251,7 +261,7 @@ router.use(verifyAuth);
 
 router.get('/my-orders', (req, res) => {
   if (!req.user) {
-    return res.status(401).json({ success: false, message: 'Login required' });
+    return res.status(401).json({ success: false, message: 'লগইন আবশ্যক' });
   }
   const orders = db.find('orders', o => o.customer_id === req.user.id || (req.user.phone && o.customer_phone === req.user.phone), req.tenant.id);
   orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -296,7 +306,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   const order = db.findOne('orders', o => (o.id === req.params.id || o.order_number === req.params.id), req.tenant.id);
   if (!order) {
-    return res.status(404).json({ success: false, message: 'Order not found' });
+    return res.status(404).json({ success: false, message: 'অর্ডার পাওয়া যায়নি' });
   }
   res.json({ success: true, order });
 });
@@ -308,7 +318,7 @@ router.patch('/:id/status', (req, res) => {
 
     const order = db.findOne('orders', o => (o.id === id || o.order_number === id), req.tenant.id);
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'অর্ডার পাওয়া যায়নি' });
     }
 
     const updatedTimeline = [...(order.timeline || [])];
@@ -330,7 +340,7 @@ router.patch('/:id/status', (req, res) => {
 
     res.json({
       success: true,
-      message: 'Order status updated successfully',
+      message: 'অর্ডার স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে',
       order: updated
     });
   } catch (err) {
@@ -345,7 +355,7 @@ router.post('/:id/courier-book', (req, res) => {
 
     const order = db.findOne('orders', o => (o.id === id || o.order_number === id), req.tenant.id);
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'অর্ডার পাওয়া যায়নি' });
     }
 
     const courierPrefix = courier_name.includes('Pathao') ? 'PT' : courier_name.includes('Steadfast') ? 'STDF' : 'RDX';
@@ -354,7 +364,7 @@ router.post('/:id/courier-book', (req, res) => {
 
     const updatedTimeline = [...(order.timeline || []), {
       status: 'shipped',
-      note: `Booked consignment with ${courier_name}. Tracking ID: ${trackingId}`,
+      note: `${courier_name} এ পার্সেল বুক করা হয়েছে। ট্র্যাকিং নম্বর: ${trackingId}`,
       created_at: new Date().toISOString(),
       created_by: req.user.name || 'Store Staff'
     }];
@@ -369,7 +379,7 @@ router.post('/:id/courier-book', (req, res) => {
 
     res.json({
       success: true,
-      message: `Consignment created successfully on ${courier_name}!`,
+      message: `${courier_name}-এ সফলভাবে পার্সেল বুকিং সম্পন্ন হয়েছে!`,
       consignment: {
         courier_name,
         tracking_id: trackingId,
@@ -386,7 +396,7 @@ router.post('/:id/courier-book', (req, res) => {
 router.get('/:id/invoice', (req, res) => {
   const order = db.findOne('orders', o => (o.id === req.params.id || o.order_number === req.params.id), req.tenant.id);
   if (!order) {
-    return res.status(404).json({ success: false, message: 'Order not found' });
+    return res.status(404).json({ success: false, message: 'অর্ডার পাওয়া যায়নি' });
   }
 
   const tenant = db.findById('tenants', req.tenant.id);
@@ -417,8 +427,11 @@ router.get('/:id/invoice', (req, res) => {
       coupon_code: order.coupon_code,
       shipping_cost: order.shipping_cost,
       total_amount: order.total_amount,
+      platform_commission_amount: order.platform_commission_amount || 0,
+      store_net_revenue: order.store_net_revenue || order.total_amount,
       payment_method: order.payment_method,
       payment_status: order.payment_status,
+      payment_trx_id: order.payment_trx_id,
       courier_name: order.courier_name,
       courier_tracking_id: order.courier_tracking_id,
       customer_notes: order.customer_notes

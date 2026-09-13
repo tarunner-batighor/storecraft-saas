@@ -17,6 +17,8 @@ router.get('/stats', (req, res) => {
     const users = db.find('users');
 
     const platformGMV = orders.reduce((sum, ord) => sum + (ord.total_amount || 0), 0);
+    const totalCommissions = orders.reduce((sum, ord) => sum + (ord.platform_commission_amount || 0), 0);
+
     let saasMRR = 0;
     tenants.forEach(t => {
       if (t.status === 'active') {
@@ -34,8 +36,11 @@ router.get('/stats', (req, res) => {
         total_products: products.length,
         total_orders: orders.length,
         platform_gmv: platformGMV,
+        total_commission_collected: totalCommissions,
         saas_mrr: saasMRR,
         saas_arr: saasMRR * 12,
+        super_admin_bkash: '01766299775',
+        super_admin_nagad: '01766299775',
         system_status: {
           uptime: '99.99%',
           db_status: 'Healthy (Row-Level Isolated)',
@@ -58,6 +63,7 @@ router.get('/tenants', (req, res) => {
       const storeProducts = db.count('products', {}, t.id);
       const storeOrders = db.find('orders', {}, t.id);
       const storeRevenue = storeOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+      const storeCommissions = storeOrders.reduce((sum, o) => sum + (o.platform_commission_amount || 0), 0);
       const owner = db.findOne('users', { tenant_id: t.id, role: 'store_owner' });
 
       return {
@@ -69,6 +75,8 @@ router.get('/tenants', (req, res) => {
         plan_id: t.plan_id,
         plan_name: plan ? plan.name : 'Free',
         plan_price: plan ? plan.price_monthly : 0,
+        commission_rate: plan ? plan.commission_percentage : 0,
+        commission_earned: storeCommissions,
         owner_name: owner ? owner.name : 'N/A',
         owner_email: owner ? owner.email : 'N/A',
         products_count: storeProducts,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom';
 import {
   Store,
   Crown,
@@ -28,6 +28,7 @@ export default function DemoSwitcherBar() {
   const { lang, isBn, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -35,7 +36,14 @@ export default function DemoSwitcherBar() {
   const isSuperAdminView = location.pathname.startsWith('/super-admin');
   const isAdminView = location.pathname.startsWith('/admin') && !isSuperAdminView;
   const isPlatformView = location.pathname === '/' || location.pathname === '/platform';
-  const isStorefrontView = !isSuperAdminView && !isAdminView && !isPlatformView;
+  const isStorefrontView = location.pathname.startsWith('/store/');
+  const forceDemo = searchParams.get('demo') === '1' || searchParams.get('demo') === 'true';
+
+  // If a customer is viewing a store link (/store/sarwarbooks), HIDE the demo switcher bar completely
+  // so the store is 100% white-label and shows only that merchant's brand!
+  if (isStorefrontView && !forceDemo) {
+    return null;
+  }
 
   if (isDismissed) {
     return (

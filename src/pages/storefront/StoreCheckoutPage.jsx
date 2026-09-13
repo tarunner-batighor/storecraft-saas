@@ -443,14 +443,58 @@ export default function StoreCheckoutPage() {
                   {formData.payment_method === 'bkash' && (
                     <div className="mt-3 p-3 bg-white dark:bg-slate-900 rounded-xl border border-pink-200 dark:border-pink-900/50 space-y-2">
                       <p className="text-[11px] text-slate-600 dark:text-slate-300">
-                        {paymentSettings.bkash_instructions || 'Please send money/payment to the number above and enter Transaction ID below.'}
+                        {paymentSettings.bkash_instructions || 'বিকাশ পার্সোনাল নম্বরে Send Money করুন এবং ট্রানজেকশন আইডি নিচে দিন:'}
                       </p>
                       <input
                         type="text"
                         placeholder="e.g. BKB902319984"
                         value={formData.payment_trx_id}
                         onChange={(e) => setFormData({ ...formData, payment_trx_id: e.target.value.toUpperCase() })}
-                        className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white uppercase font-mono"
+                        className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white uppercase font-mono font-bold"
+                      />
+                    </div>
+                  )}
+                </div>
+              </label>
+
+              {/* Nagad Payment */}
+              <label
+                onClick={() => setFormData({ ...formData, payment_method: 'nagad' })}
+                className={`flex items-start space-x-3 p-3.5 rounded-xl border cursor-pointer transition ${
+                  formData.payment_method === 'nagad'
+                    ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/40 ring-1 ring-orange-500'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="nagad"
+                  checked={formData.payment_method === 'nagad'}
+                  onChange={() => setFormData({ ...formData, payment_method: 'nagad' })}
+                  className="mt-1 text-orange-600"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2">
+                    <Smartphone className="w-4 h-4 text-orange-600" />
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">নগদ মোবাইল পেমেন্ট (Nagad)</span>
+                    <span className="text-[10px] bg-orange-100 text-orange-800 px-1.5 py-0.2 rounded font-semibold">Personal</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    নগদ অ্যাপ বা *167# ডায়াল করে Send Money করুন: <strong>{paymentSettings.nagad_number || '01766299775'}</strong>
+                  </p>
+
+                  {formData.payment_method === 'nagad' && (
+                    <div className="mt-3 p-3 bg-white dark:bg-slate-900 rounded-xl border border-orange-200 dark:border-orange-900/50 space-y-2">
+                      <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                        {paymentSettings.nagad_instructions || 'নগদ পার্সোনাল নম্বরে Send Money করুন এবং ট্রানজেকশন আইডি নিচে দিন:'}
+                      </p>
+                      <input
+                        type="text"
+                        placeholder="e.g. 78AG8932"
+                        value={formData.payment_trx_id}
+                        onChange={(e) => setFormData({ ...formData, payment_trx_id: e.target.value.toUpperCase() })}
+                        className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white uppercase font-mono font-bold"
                       />
                     </div>
                   )}

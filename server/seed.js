@@ -5,7 +5,7 @@ export function seedDatabase() {
   // Clear existing records
   db.reset();
 
-  console.log('[Seed] Seeding Bangladeshi standard SaaS plans and multi-tenant stores...');
+  console.log('[Seed] Seeding Bangladeshi standard SaaS platform with 4 stores and Personal bKash/Nagad 01766299775...');
 
   // 1. SaaS Subscription Plans (Standard Bangladeshi Pricing in BDT)
   const plans = [
@@ -25,7 +25,7 @@ export function seedDatabase() {
       features: [
         'সর্বোচ্চ ২৫টি প্রোডাক্ট আপলোড',
         'স্ট্যান্ডার্ড সাবডোমেন (yourstore.storecraft.io)',
-        'ক্যাশ অন ডেলিভারি (COD) ও ম্যানুয়াল বিকাশ',
+        'ক্যাশ অন ডেলিভারি (COD) ও বিকাশ/নগদ',
         'বেসিক মোবাইল রেসপনসিভ PWA স্টোরফ্রন্ট',
         'স্ট্যান্ডার্ড অর্ডার ও ইনভেন্টরি ট্র্যাকিং',
         '৩% প্ল্যাটফর্ম ট্রানজ্যাকশন ফি'
@@ -33,7 +33,7 @@ export function seedDatabase() {
       features_en: [
         'Up to 25 Products',
         'Free Subdomain (yourstore.storecraft.io)',
-        'Cash on Delivery & Manual bKash/Nagad',
+        'Cash on Delivery & bKash/Nagad',
         'Mobile Responsive PWA Storefront',
         'Basic Order & Inventory Management',
         '3.0% Platform Transaction Fee'
@@ -55,7 +55,7 @@ export function seedDatabase() {
       features: [
         'সর্বোচ্চ ২৫০টি প্রোডাক্ট ও আনলিমিটেড অর্ডার',
         'নিজস্ব কাস্টম ডোমেন কানেকশন (.com / .com.bd)',
-        'বিকাশ ও নগদ অনলাইন অটো-পেমেন্ট গেটওয়ে',
+        'বিকাশ ও নগদ পার্সোনাল/মার্চেন্ট পেমেন্ট',
         'পাঠাও ও স্টিডফাস্ট ১-ক্লিক কুরিয়ার বুকিং',
         '২ জন স্টাফ অ্যাকাউন্ট ও অটো ইনভয়েস স্লিপ',
         '১.৫% প্ল্যাটফর্ম ট্রানজ্যাকশন ফি'
@@ -63,7 +63,7 @@ export function seedDatabase() {
       features_en: [
         'Up to 250 Products & Unlimited Orders',
         'Custom Domain Support (.com / .com.bd)',
-        'bKash & Nagad Online Payment Gateways',
+        'bKash & Nagad Online/Personal Payment',
         'Pathao & Steadfast 1-Click Courier Dispatch',
         '2 Staff Accounts & Auto PDF Invoices',
         '1.5% Platform Transaction Fee'
@@ -142,13 +142,13 @@ export function seedDatabase() {
     name: 'Abdul Hadi Bin Masud (Super Admin)',
     email: 'abdulhadibinmasud775@gmail.com',
     password_hash: bcrypt.hashSync('password123', 8),
-    phone: '+880 1711-000000',
+    phone: '01766299775',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     permissions: ['all'],
     is_active: true
   });
 
-  // ================= TENANT 1: SARWAR AHMAD BOOK STORE =================
+  // ================= TENANT 1: SARWAR AHMAD BOOK STORE (BOOKS) =================
   const tenantBooks = db.insert('tenants', {
     id: 'tenant-sarwarbooks',
     name: 'Sarwar Ahmad Book Store',
@@ -165,12 +165,12 @@ export function seedDatabase() {
       secondary_color: '#0f172a',
       accent_color: '#f59e0b',
       font: 'Inter',
-      top_bar_text: '📚 Sarwar Ahmad Book Store এ স্বাগতম! ৳১,৫০০+ অর্ডারে ফ্রি হোম ডেলিভারি | কোড: BOOK10',
+      top_bar_text: '📚 Sarwar Ahmad Book Store এ স্বাগতম! ৳১,৫০০+ অর্ডারে ফ্রি হোম ডেলিভারি | বিকাশ/নগদ: 01766299775',
       top_bar_enabled: true,
       currency: 'BDT',
       currency_symbol: '৳',
       contact_email: 'sarwar@gmail.com',
-      contact_phone: '+880 1712-345678',
+      contact_phone: '01766299775',
       address: 'কনকর্ড এম্পোরিয়াম শপিং কমপ্লেক্স, কাঁটাবন, ঢাকা-১২০৫',
       footer_text: '© 2026 Sarwar Ahmad Book Store. সর্বস্বত্ব সংরক্ষিত। অরিজিনাল বই ও ক্যাশ অন ডেলিভারি।',
       social_links: {
@@ -208,9 +208,13 @@ export function seedDatabase() {
     payment_settings: {
       cod_enabled: true,
       bkash_enabled: true,
-      bkash_number: '01712345678',
+      bkash_type: 'Personal',
+      bkash_number: '01766299775',
+      bkash_instructions: 'বিকাশ পার্সোনাল নম্বরে (01766299775) Send Money করুন এবং ট্রানজেকশন আইডি দিন।',
       nagad_enabled: true,
-      nagad_number: '01712345678',
+      nagad_type: 'Personal',
+      nagad_number: '01766299775',
+      nagad_instructions: 'নগদ পার্সোনাল নম্বরে (01766299775) Send Money করুন এবং ট্রানজেকশন আইডি দিন।',
       card_enabled: true
     }
   });
@@ -367,15 +371,15 @@ export function seedDatabase() {
     name: 'Sarwar Ahmad',
     email: 'sarwar@gmail.com',
     password_hash: bcrypt.hashSync('owner123', 8),
-    phone: '+880 1712-345678',
+    phone: '01766299775',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
     is_active: true
   });
 
-  // Sample Order for Sarwar Books
+  // Sample Order for Sarwar Books with Platform Commission
   db.insert('orders', {
     id: 'ord-sb-1001',
-    order_number: 'SB-1001',
+    order_number: 'SB-2026-1001',
     tenant_id: tenantBooks.id,
     customer_name: 'তানভীর আহমেদ',
     customer_email: 'tanvir@gmail.com',
@@ -408,18 +412,22 @@ export function seedDatabase() {
     coupon_code: 'BOOK10',
     shipping_cost: 60,
     total_amount: 600,
-    payment_method: 'cod',
+    platform_commission_rate: 0.5,
+    platform_commission_amount: 3,
+    store_net_revenue: 597,
+    payment_method: 'bkash',
     payment_status: 'paid',
+    payment_trx_id: 'TRX982736154',
     status: 'delivered',
     courier_name: 'Pathao Courier',
     courier_tracking_id: 'PT-894120',
     timeline: [
-      { status: 'pending', note: 'Order placed online', created_at: '2026-09-12T10:00:00Z', created_by: 'Customer' },
+      { status: 'pending', note: 'Order placed online via bKash', created_at: '2026-09-12T10:00:00Z', created_by: 'Customer' },
       { status: 'delivered', note: 'Parcel delivered by Pathao', created_at: '2026-09-13T09:00:00Z', created_by: 'Pathao Rider' }
     ]
   }, tenantBooks.id);
 
-  // ================= TENANT 2: GADGETVIBE =================
+  // ================= TENANT 2: GADGETVIBE (GADGETS & TECH) =================
   const tenantGadget = db.insert('tenants', {
     id: 'tenant-gadgetvibe',
     name: 'GadgetVibe Bangladesh',
@@ -435,12 +443,12 @@ export function seedDatabase() {
       secondary_color: '#0f172a',
       accent_color: '#f59e0b',
       font: 'Inter',
-      top_bar_text: '⚡ Free Express Delivery on Tech orders over ৳5,000 | Code: GADGET10 for 10% OFF',
+      top_bar_text: '⚡ Free Express Delivery on Tech orders over ৳5,000 | bKash/Nagad: 01766299775',
       top_bar_enabled: true,
       currency: 'BDT',
       currency_symbol: '৳',
       contact_email: 'support@gadgetvibe.com',
-      contact_phone: '+880 1811-223344',
+      contact_phone: '01766299775',
       address: 'Shop #402, Level 4, Multiplan Centre, New Elephant Road, Dhaka-1205',
       footer_text: '© 2026 GadgetVibe Bangladesh. All rights reserved. 100% Genuine Tech Products with Official Warranty.',
       hero_slides: [
@@ -456,12 +464,20 @@ export function seedDatabase() {
       ]
     },
     courier_settings: { pathao: { enabled: true, default: true } },
-    payment_settings: { cod_enabled: true, bkash_enabled: true, bkash_number: '01811223344' }
+    payment_settings: {
+      cod_enabled: true,
+      bkash_enabled: true,
+      bkash_type: 'Personal',
+      bkash_number: '01766299775',
+      nagad_enabled: true,
+      nagad_type: 'Personal',
+      nagad_number: '01766299775'
+    }
   });
 
   const catGadget = db.insert('categories', {
     tenant_id: tenantGadget.id,
-    name: 'Smartphones & Gadgets',
+    name: 'Smartphones & Audio',
     slug: 'smartphones',
     image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80',
     is_featured: true,
@@ -502,11 +518,11 @@ export function seedDatabase() {
     name: 'Rahim Chowdhury',
     email: 'owner@gadgetvibe.com',
     password_hash: bcrypt.hashSync('owner123', 8),
-    phone: '+880 1811-223344',
+    phone: '01766299775',
     is_active: true
   });
 
-  // ================= TENANT 3: GREENGROCER =================
+  // ================= TENANT 3: GREENGROCER (ORGANIC GROCERY) =================
   const tenantGreen = db.insert('tenants', {
     id: 'tenant-greengrocer',
     name: 'GreenGrocer Organic Farm',
@@ -522,12 +538,12 @@ export function seedDatabase() {
       secondary_color: '#064e3b',
       accent_color: '#eab308',
       font: 'Inter',
-      top_bar_text: '🥬 গ্রিনগ্রোসারে তাজা শাকসবজি ও খাঁটি মধু অর্ডার করুন | কোড: ORGANIC5',
+      top_bar_text: '🥬 গ্রিনগ্রোসারে তাজা শাকসবজি ও খাঁটি মধু অর্ডার করুন | বিকাশ/নগদ: 01766299775',
       top_bar_enabled: true,
       currency: 'BDT',
       currency_symbol: '৳',
       contact_email: 'support@greengrocer.com',
-      contact_phone: '+880 1911-556677',
+      contact_phone: '01766299775',
       address: 'বাড়ি #১২, রোড #৪, গুলশান-২, ঢাকা',
       footer_text: '© 2026 GreenGrocer Organic Farm. ফ্রেশ অর্গানিক পণ্যের নিশ্চয়তা।',
       hero_slides: [
@@ -544,12 +560,20 @@ export function seedDatabase() {
       ]
     },
     courier_settings: { steadfast: { enabled: true, default: true } },
-    payment_settings: { cod_enabled: true, bkash_enabled: true, bkash_number: '01911556677' }
+    payment_settings: {
+      cod_enabled: true,
+      bkash_enabled: true,
+      bkash_type: 'Personal',
+      bkash_number: '01766299775',
+      nagad_enabled: true,
+      nagad_type: 'Personal',
+      nagad_number: '01766299775'
+    }
   });
 
   const catGreen = db.insert('categories', {
     tenant_id: tenantGreen.id,
-    name: 'তাজা শাকসবজি ও ফ্রুটস',
+    name: 'তাজা শাকসবজি ও মধু',
     slug: 'fresh-produce',
     image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=400&q=80',
     is_featured: true,
@@ -588,11 +612,11 @@ export function seedDatabase() {
     name: 'Kazi Farhan',
     email: 'owner@greengrocer.com',
     password_hash: bcrypt.hashSync('owner123', 8),
-    phone: '+880 1911-556677',
+    phone: '01766299775',
     is_active: true
   });
 
-  // ================= TENANT 4: SILK & COTTON =================
+  // ================= TENANT 4: SILK & COTTON (FASHION & APPAREL) =================
   const tenantSilk = db.insert('tenants', {
     id: 'tenant-silkandcotton',
     name: 'Silk & Cotton Lifestyle',
@@ -608,12 +632,12 @@ export function seedDatabase() {
       secondary_color: '#451a03',
       accent_color: '#f59e0b',
       font: 'Playfair Display',
-      top_bar_text: '✨ প্রিমিয়াম ঈদ ও উৎসব কালেকশনে ফ্ল্যাট ২০% ডিসকাউন্ট | কোড: FESTIVE20',
+      top_bar_text: '✨ প্রিমিয়াম ঈদ ও উৎসব কালেকশনে ফ্ল্যাট ২০% ডিসকাউন্ট | বিকাশ/নগদ: 01766299775',
       top_bar_enabled: true,
       currency: 'BDT',
       currency_symbol: '৳',
       contact_email: 'support@silkandcotton.com',
-      contact_phone: '+880 1711-998877',
+      contact_phone: '01766299775',
       address: 'রোড #১১, বনানী, ঢাকা-১২১৩',
       footer_text: '© 2026 Silk & Cotton Lifestyle. ১০০% প্রিমিয়াম ফেব্রিক ও এক্সক্লুসিভ কালেকশন।',
       hero_slides: [
@@ -630,7 +654,15 @@ export function seedDatabase() {
       ]
     },
     courier_settings: { pathao: { enabled: true, default: true } },
-    payment_settings: { cod_enabled: true, bkash_enabled: true, bkash_number: '01711998877', nagad_enabled: true }
+    payment_settings: {
+      cod_enabled: true,
+      bkash_enabled: true,
+      bkash_type: 'Personal',
+      bkash_number: '01766299775',
+      nagad_enabled: true,
+      nagad_type: 'Personal',
+      nagad_number: '01766299775'
+    }
   });
 
   const catSilk = db.insert('categories', {
@@ -680,7 +712,7 @@ export function seedDatabase() {
     name: 'Nadia Rahman',
     email: 'owner@silkandcotton.com',
     password_hash: bcrypt.hashSync('owner123', 8),
-    phone: '+880 1711-998877',
+    phone: '01766299775',
     is_active: true
   });
 
@@ -692,11 +724,11 @@ export function seedDatabase() {
     name: 'Tanvir Ahmed',
     email: 'tanvir@gmail.com',
     password_hash: bcrypt.hashSync('customer123', 8),
-    phone: '+880 1711-223344',
+    phone: '01711223344',
     is_active: true
   });
 
-  console.log('[Seed] All 4 multi-tenant stores and Bangladeshi standard SaaS plans initialized successfully!');
+  console.log('[Seed] All 4 multi-tenant stores initialized successfully with Personal bKash/Nagad 01766299775!');
 }
 
 export function runSeed(force = false) {
