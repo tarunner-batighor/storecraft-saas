@@ -60,20 +60,20 @@ export default function AdminLayout() {
   };
 
   const navItems = [
-    { label: 'Overview', path: '/admin', icon: LayoutDashboard },
-    { label: 'Products & Inventory', path: '/admin/products', icon: Package },
-    { label: 'Orders & Fulfillment', path: '/admin/orders', icon: ShoppingCart },
-    { label: 'Coupons & Discounts', path: '/admin/coupons', icon: Tags },
-    { label: 'Sales Reports & CSV', path: '/admin/reports', icon: BarChart3 },
-    { label: 'Theme & Branding', path: '/admin/branding', icon: Palette },
-    { label: 'Custom Domain', path: '/admin/domain', icon: Globe },
-    { label: 'Payment Settings', path: '/admin/payments', icon: CreditCard },
-    { label: 'Courier Integration', path: '/admin/couriers', icon: Truck },
-    { label: 'Staff & Roles (RBAC)', path: '/admin/staff', icon: UserCheck },
-    { label: 'SaaS Plan & Billing', path: '/admin/subscription', icon: Award }
+    { label: 'ওভারভিউ ড্যাশবোর্ড', path: '/admin', icon: LayoutDashboard },
+    { label: 'পণ্য ও স্টক তালিকা', path: '/admin/products', icon: Package },
+    { label: 'অর্ডার ও ডেলিভারি', path: '/admin/orders', icon: ShoppingCart },
+    { label: 'কুপন ও ডিসকাউন্ট', path: '/admin/coupons', icon: Tags },
+    { label: 'সেলস রিপোর্ট ও এক্সেল', path: '/admin/reports', icon: BarChart3 },
+    { label: 'থিম ও ব্র্যান্ডিং', path: '/admin/branding', icon: Palette },
+    { label: 'কাস্টম ডোমেন সংযোগ', path: '/admin/domain', icon: Globe },
+    { label: 'পেমেন্ট গেটওয়ে (বিকাশ/নগদ)', path: '/admin/payments', icon: CreditCard },
+    { label: 'কুরিয়ার অটোমেশন', path: '/admin/couriers', icon: Truck },
+    { label: 'স্টাফ ও পারমিশন', path: '/admin/staff', icon: UserCheck },
+    { label: 'প্ল্যান ও সাবস্ক্রিপশন', path: '/admin/subscription', icon: Award }
   ];
 
-  const primaryColor = branding?.primary_color || '#0f766e';
+  const primaryColor = branding?.primary_color || '#0284c7';
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
@@ -100,7 +100,7 @@ export default function AdminLayout() {
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
               {branding?.logo ? (
-                <img src={branding.logo} alt={currentTenant?.name} className="w-9 h-9 rounded-xl object-cover" />
+                <img src={branding.logo} alt={currentTenant?.name} className="w-9 h-9 rounded-xl object-cover border border-slate-700" />
               ) : (
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md"
@@ -110,7 +110,7 @@ export default function AdminLayout() {
                 </div>
               )}
               <div className="min-w-0">
-                <h3 className="text-xs font-bold text-white truncate">{currentTenant?.name || 'Store Admin'}</h3>
+                <h3 className="text-xs font-bold text-white truncate">{currentTenant?.name || 'স্টোর অ্যাডমিন'}</h3>
                 <span className="text-[10px] text-slate-400 block font-mono">{currentSlug}.storecraft.io</span>
               </div>
             </div>
@@ -148,13 +148,13 @@ export default function AdminLayout() {
         <div className="p-4 border-t border-slate-800 space-y-2">
           <button
             onClick={() => setProfileModalOpen(true)}
-            className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 transition"
+            className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 transition cursor-pointer"
           >
             <span className="flex items-center space-x-2">
               <KeyRound className="w-3.5 h-3.5 text-amber-400" />
               <span>পাসওয়ার্ড পরিবর্তন</span>
             </span>
-            <span className="text-[10px] text-slate-400">Settings</span>
+            <span className="text-[10px] text-sky-400">Settings</span>
           </button>
 
           <Link
@@ -162,13 +162,13 @@ export default function AdminLayout() {
             target="_blank"
             className="w-full flex items-center justify-center space-x-1.5 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700 transition"
           >
-            <span>View Live Storefront</span>
+            <span>লাইভ দোকান দেখুন</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
 
           <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-            <span>StoreCraft v2.4 SaaS</span>
-            <span className="text-emerald-400 font-semibold">Online</span>
+            <span>StoreCraft বাংলা SaaS</span>
+            <span className="text-emerald-400 font-semibold">সক্রিয় (Online)</span>
           </div>
         </div>
       </aside>
@@ -185,10 +185,10 @@ export default function AdminLayout() {
               <Menu className="w-5 h-5" />
             </button>
             <div className="hidden sm:flex items-center space-x-2 text-xs text-slate-500">
-              <span>Tenant Admin</span>
+              <span>স্টোর কন্ট্রোল</span>
               <ChevronRight className="w-3.5 h-3.5" />
-              <span className="font-semibold text-slate-900 dark:text-white capitalize">
-                {location.pathname.replace('/admin/', '').replace('/admin', 'Dashboard') || 'Dashboard'}
+              <span className="font-semibold text-slate-900 dark:text-white">
+                {navItems.find(i => i.path === location.pathname)?.label || 'ড্যাশবোর্ড'}
               </span>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function AdminLayout() {
               <button
                 onClick={() => setShowNotifDropdown(!showNotifDropdown)}
                 className="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                title="Notifications"
+                title="নোটিফিকেশন"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
@@ -212,12 +212,12 @@ export default function AdminLayout() {
               {showNotifDropdown && (
                 <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl py-2 z-50">
                   <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">Store Notifications</span>
-                    <button onClick={markAllRead} className="text-[11px] text-sky-600 hover:underline">Mark all read</button>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">অর্ডার ও অ্যালার্ট নোটিফিকেশন</span>
+                    <button onClick={markAllRead} className="text-[11px] text-sky-600 hover:underline">সব পঠিত করুন</button>
                   </div>
                   <div className="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                     {notifications.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-slate-400">No notifications yet</div>
+                      <div className="p-4 text-center text-xs text-slate-400">নতুন কোনো নোটিফিকেশন নেই</div>
                     ) : (
                       notifications.map((n) => (
                         <div key={n.id} className={`p-3 text-xs ${n.is_read ? 'opacity-70' : 'bg-sky-50/50 dark:bg-sky-950/20'}`}>
@@ -235,7 +235,7 @@ export default function AdminLayout() {
             <button
               onClick={() => setProfileModalOpen(true)}
               className="flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-700 hover:opacity-80 transition cursor-pointer p-1 rounded-xl"
-              title="Click to update Profile & Password"
+              title="প্রোফাইল ও পাসওয়ার্ড পরিবর্তন"
             >
               <img
                 src={user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'}
@@ -244,10 +244,10 @@ export default function AdminLayout() {
               />
               <div className="hidden sm:block text-left">
                 <div className="text-xs font-bold text-slate-900 dark:text-white leading-none flex items-center space-x-1">
-                  <span>{user?.name || 'Owner'}</span>
+                  <span>{user?.name || 'দোকান মালিক'}</span>
                   <KeyRound className="w-3 h-3 text-sky-500" />
                 </div>
-                <div className="text-[10px] text-slate-400 capitalize">{user?.role?.replace('_', ' ') || 'Staff'} (Edit)</div>
+                <div className="text-[10px] text-slate-400 capitalize">{user?.role === 'store_owner' ? 'মালিক (Owner)' : 'স্টাফ'}</div>
               </div>
             </button>
           </div>
