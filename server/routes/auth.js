@@ -69,12 +69,12 @@ router.post('/register', (req, res) => {
         plan_id: 'plan-starter',
         plan_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         branding: {
-          tagline: 'Welcome to our premium online shop',
-          logo: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=150&q=80',
-          primary_color: '#0f766e',
-          secondary_color: '#1e293b',
+          tagline: `স্বাগতম ${store_name || name}-এ`,
+          logo: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=150&q=80',
+          primary_color: '#0284c7',
+          secondary_color: '#0f172a',
           accent_color: '#f59e0b',
-          top_bar_text: '⚡ Free Shipping on your first order! Use code: FIRST10',
+          top_bar_text: '⚡ ফ্রি হোম ডেলিভারি পেতে কোড ব্যবহার করুন: FIRST10',
           top_bar_enabled: true,
           currency: 'BDT',
           currency_symbol: '৳',
@@ -85,36 +85,76 @@ router.post('/register', (req, res) => {
           hero_slides: [
             {
               id: 'slide-default-1',
-              title: `Welcome to ${store_name || name}`,
-              subtitle: 'Discover our exclusive range of curated products',
+              title: `${store_name || name}`,
+              subtitle: 'অনলাইনে সেরা কালেকশন ও দ্রুততম হোম ডেলিভারি',
               badge: 'NEW OPENING',
-              button_text: 'Start Shopping',
+              button_text: 'কেনাকাটা করুন',
               button_link: '/catalog',
-              image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80'
+              image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80'
             }
           ]
         },
-        courier_settings: { pathao: { enabled: true, default: true } },
+        courier_settings: { pathao: { enabled: true, default: true }, steadfast: { enabled: true } },
         payment_settings: { cod_enabled: true, bkash_enabled: true, bkash_number: phone || '01700000000' }
       });
 
-      db.insert('categories', {
+      const cat1 = db.insert('categories', {
         tenant_id: newTenant.id,
         name: 'Featured Collection',
         slug: 'featured-collection',
-        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80',
+        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
         is_featured: true,
         sort_order: 1
-      });
+      }, newTenant.id);
 
       db.insert('shipping_zones', {
         tenant_id: newTenant.id,
         name: 'Standard Home Delivery',
         cities: ['All Districts'],
         rate: 60,
-        free_shipping_threshold: 2000,
+        free_shipping_threshold: 1500,
         estimated_days: '2-3 Days'
-      });
+      }, newTenant.id);
+
+      // Auto-create 3 Starter Products for immediate showcase
+      db.insert('products', {
+        tenant_id: newTenant.id,
+        name: `${store_name || name} স্পেশাল বেস্টসেলার আইটেম`,
+        slug: 'featured-best-seller',
+        sku: 'SKU-BEST-01',
+        category_id: cat1.id,
+        price: 450,
+        compare_at_price: 550,
+        stock_quantity: 50,
+        is_published: true,
+        is_featured: true,
+        is_flash_deal: true,
+        flash_deal_discount: 18,
+        short_description: 'আমাদের স্টোরের সবচেয়ে জনপ্রিয় এবং নির্ভরযোগ্য পণ্য।',
+        description: 'অরিজিনাল কোয়ালিটি ও দ্রুত হোম ডেলিভারি নিশ্চয়তা সহ প্রিমিয়াম কালেকশন।',
+        images: ['https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80'],
+        rating_avg: 5.0,
+        rating_count: 8
+      }, newTenant.id);
+
+      db.insert('products', {
+        tenant_id: newTenant.id,
+        name: 'প্রিমিয়াম এডিশন কালেকশন',
+        slug: 'premium-edition',
+        sku: 'SKU-PREM-02',
+        category_id: cat1.id,
+        price: 850,
+        compare_at_price: 1050,
+        stock_quantity: 35,
+        is_published: true,
+        is_featured: true,
+        is_flash_deal: false,
+        short_description: 'এক্সক্লুসিভ কালেকশন ও ক্যাশ অন ডেলিভারি সুবিধা।',
+        description: '১০০% জেনুইন প্রোডাক্ট, সারা বাংলাদেশে ২-৩ দিনে হোম ডেলিভারি।',
+        images: ['https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80'],
+        rating_avg: 4.9,
+        rating_count: 5
+      }, newTenant.id);
 
       const passwordHash = bcrypt.hashSync(password, 8);
       const newUser = db.insert('users', {
