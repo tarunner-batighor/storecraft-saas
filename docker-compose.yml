@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  storecraft-saas:
+    build: .
+    container_name: storecraft_app
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - JWT_SECRET=your_super_secret_production_jwt_key
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

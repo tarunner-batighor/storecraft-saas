@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: storecraft-saas
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: PORT=$PORT node server/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
