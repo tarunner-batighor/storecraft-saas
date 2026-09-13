@@ -65,13 +65,20 @@ function StorefrontLayout() {
   );
 }
 
+// Redirect helper for root level catalog/checkout to active store
+function DirectStorefrontRedirect({ targetPath = '' }) {
+  const { currentSlug } = useTenant();
+  const slug = currentSlug || 'sarwarbooks';
+  return <Navigate to={`/store/${slug}${targetPath ? `/${targetPath}` : ''}`} replace />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <TenantProvider>
         <AuthProvider>
           <CartProvider>
-            {/* Optional Global Demo Switcher Bar */}
+            {/* Global Store & Demo Switcher Bar */}
             <DemoSwitcherBar />
 
             <Routes>
@@ -81,6 +88,12 @@ export default function App() {
               {/* SaaS Platform Landing */}
               <Route path="/" element={<SaasLandingPage />} />
               <Route path="/platform" element={<SaasLandingPage />} />
+
+              {/* Direct Storefront Shortcuts -> Resolves to active tenant */}
+              <Route path="/catalog" element={<DirectStorefrontRedirect targetPath="catalog" />} />
+              <Route path="/checkout" element={<DirectStorefrontRedirect targetPath="checkout" />} />
+              <Route path="/track" element={<DirectStorefrontRedirect targetPath="track" />} />
+              <Route path="/account" element={<DirectStorefrontRedirect targetPath="account" />} />
 
               {/* Protected Super Admin Control Center */}
               <Route
@@ -114,7 +127,7 @@ export default function App() {
                 <Route path="subscription" element={<AdminSubscriptionPage />} />
               </Route>
 
-              {/* White-Label Customer Storefront Routes */}
+              {/* White-Label Multi-Tenant Storefront Routes */}
               <Route path="/store/:tenantSlug" element={<StorefrontLayout />}>
                 <Route index element={<StoreHomePage />} />
                 <Route path="catalog" element={<StoreCatalogPage />} />
