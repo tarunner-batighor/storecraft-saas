@@ -6,9 +6,13 @@ import { CartProvider } from './context/CartContext';
 
 // Common Components
 import DemoSwitcherBar from './components/common/DemoSwitcherBar';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import StorefrontHeader from './components/storefront/StorefrontHeader';
 import StorefrontFooter from './components/storefront/StorefrontFooter';
 import CartDrawer from './components/storefront/CartDrawer';
+
+// Auth Pages
+import LoginPage from './pages/auth/LoginPage';
 
 // SaaS Platform Pages
 import SaasLandingPage from './pages/platform/SaasLandingPage';
@@ -67,19 +71,36 @@ export default function App() {
       <TenantProvider>
         <AuthProvider>
           <CartProvider>
-            {/* Global Demo Switcher & View Switcher Bar */}
+            {/* Optional Global Demo Switcher Bar */}
             <DemoSwitcherBar />
 
             <Routes>
+              {/* Login Page */}
+              <Route path="/login" element={<LoginPage />} />
+
               {/* SaaS Platform Landing */}
               <Route path="/" element={<SaasLandingPage />} />
               <Route path="/platform" element={<SaasLandingPage />} />
 
-              {/* Super Admin Control Center */}
-              <Route path="/super-admin" element={<SuperAdminDashboardPage />} />
+              {/* Protected Super Admin Control Center */}
+              <Route
+                path="/super-admin"
+                element={
+                  <ProtectedRoute requiredRole="super_admin">
+                    <SuperAdminDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
 
-              {/* Store Owner / Staff Admin Panel */}
-              <Route path="/admin" element={<AdminLayout />}>
+              {/* Protected Store Owner / Staff Admin Panel */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requiredRole="store_admin">
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
                 <Route index element={<AdminDashboardPage />} />
                 <Route path="products" element={<AdminProductsPage />} />
                 <Route path="orders" element={<AdminOrdersPage />} />

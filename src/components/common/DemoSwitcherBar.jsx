@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Store,
   Crown,
@@ -13,23 +13,44 @@ import {
   Layers,
   ChevronDown,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Lock,
+  LogOut,
+  Eye,
+  EyeOff,
+  X
 } from 'lucide-react';
 import CreateStoreModal from './CreateStoreModal';
 
 export default function DemoSwitcherBar() {
   const { currentSlug, currentTenant, availableStores, switchTenant, refreshTenant } = useTenant();
-  const { user, isSuperAdmin, isStoreOwner, isStoreStaff, isCustomer, demoSwitch } = useAuth();
+  const { user, isSuperAdmin, isStoreOwner, isStoreStaff, isCustomer, demoSwitch, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   const isSuperAdminView = location.pathname.startsWith('/super-admin');
   const isAdminView = location.pathname.startsWith('/admin') && !isSuperAdminView;
   const isPlatformView = location.pathname === '/' || location.pathname === '/platform';
   const isStorefrontView = !isSuperAdminView && !isAdminView && !isPlatformView;
+
+  if (isDismissed) {
+    return (
+      <div className="fixed bottom-3 right-3 z-50">
+        <button
+          onClick={() => setIsDismissed(false)}
+          className="bg-slate-900/90 text-slate-300 hover:text-white border border-slate-700 p-2 rounded-full shadow-2xl flex items-center space-x-1.5 text-xs font-bold transition"
+          title="Show Switcher Bar"
+        >
+          <Sparkles className="w-4 h-4 text-amber-400" />
+          <span className="text-[11px]">Demo Controls</span>
+        </button>
+      </div>
+    );
+  }
 
   const handleStoreChange = (slug) => {
     switchTenant(slug);
@@ -55,9 +76,9 @@ export default function DemoSwitcherBar() {
 
   return (
     <>
-      <div className="bg-slate-900 text-white text-xs border-b border-slate-800 sticky top-0 z-50 px-3 py-2 shadow-md">
+      <div className="bg-slate-900 text-white text-xs border-b border-slate-800 sticky top-0 z-50 px-3 py-1.5 shadow-md">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          {/* Left: SaaS Platform Brand & Active Store Selector */}
+          {/* Left: SaaS Brand & Active Store Selector */}
           <div className="flex items-center space-x-3">
             <button
               onClick={() => navigate('/platform')}
@@ -69,7 +90,7 @@ export default function DemoSwitcherBar() {
               </div>
               <span className="hidden sm:inline">StoreCraft</span>
               <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded text-[10px] uppercase font-semibold">
-                Multi-Tenant SaaS
+                SaaS
               </span>
             </button>
 
@@ -79,10 +100,10 @@ export default function DemoSwitcherBar() {
             <div className="relative">
               <button
                 onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
-                className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-md border border-slate-700 transition"
+                className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded-md border border-slate-700 transition text-xs"
               >
                 <Store className="w-3.5 h-3.5 text-sky-400" />
-                <span className="font-medium truncate max-w-[120px] sm:max-w-[160px]">
+                <span className="font-medium truncate max-w-[110px] sm:max-w-[150px]">
                   {currentTenant?.name || currentSlug}
                 </span>
                 <ChevronDown className="w-3 h-3 text-slate-400" />
@@ -91,7 +112,7 @@ export default function DemoSwitcherBar() {
               {isStoreDropdownOpen && (
                 <div className="absolute left-0 mt-1.5 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-1 z-50 animate-fade-in">
                   <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-slate-800 flex justify-between items-center">
-                    <span>SWITCH ACTIVE STORE</span>
+                    <span>দোকান পরিবর্তন করুন</span>
                     <button onClick={refreshTenant} className="hover:text-white" title="Refresh">
                       <RefreshCw className="w-3 h-3" />
                     </button>
@@ -128,7 +149,7 @@ export default function DemoSwitcherBar() {
                       className="w-full flex items-center justify-center space-x-1 text-emerald-400 hover:bg-emerald-950/50 py-1.5 rounded text-xs font-semibold"
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
-                      <span>+ Create New Store</span>
+                      <span>+ নতুন স্টোর খুলুন</span>
                     </button>
                   </div>
                 </div>
@@ -136,128 +157,78 @@ export default function DemoSwitcherBar() {
             </div>
           </div>
 
-          {/* Center/Right: View Switcher Tabs & Role Switcher */}
+          {/* Right: Quick Links, Role, Login & Dismiss */}
           <div className="flex items-center space-x-2">
-            {/* Navigation Mode Buttons */}
+            {/* View Switcher Tabs */}
             <div className="flex items-center bg-slate-800 p-0.5 rounded-lg border border-slate-700">
               <button
                 onClick={() => navigate('/platform')}
-                className={`px-2.5 py-1 rounded text-xs font-medium transition flex items-center space-x-1 ${
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
                   isPlatformView ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-white'
                 }`}
-                title="SaaS Platform Overview"
               >
-                <Layers className="w-3 h-3" />
-                <span className="hidden md:inline">SaaS Portal</span>
+                SaaS
               </button>
 
               <button
                 onClick={() => navigate(`/store/${currentSlug}`)}
-                className={`px-2.5 py-1 rounded text-xs font-medium transition flex items-center space-x-1 ${
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
                   isStorefrontView ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-white'
                 }`}
-                title="Customer Storefront"
               >
-                <ShoppingBag className="w-3 h-3" />
-                <span>Storefront</span>
+                Storefront
               </button>
 
               <button
                 onClick={() => navigate('/admin')}
-                className={`px-2.5 py-1 rounded text-xs font-medium transition flex items-center space-x-1 ${
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
                   isAdminView ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
                 }`}
-                title="Store Owner Admin Panel"
               >
-                <Store className="w-3 h-3" />
-                <span>Store Admin</span>
+                Admin
               </button>
 
               <button
                 onClick={() => navigate('/super-admin')}
-                className={`px-2.5 py-1 rounded text-xs font-medium transition flex items-center space-x-1 ${
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
                   isSuperAdminView ? 'bg-amber-600 text-white shadow' : 'text-slate-400 hover:text-white'
                 }`}
-                title="Super Admin Platform Portal"
               >
-                <Crown className="w-3 h-3" />
-                <span className="hidden md:inline">Super Admin</span>
+                Super Admin
               </button>
             </div>
 
-            {/* Quick Demo Role Switcher Dropdown */}
-            <div className="relative">
+            {/* Login / Logout Button */}
+            {isAuthenticated ? (
               <button
-                onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                className="flex items-center space-x-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-1 rounded-md transition"
-                title="Switch Active Demo Role"
+                onClick={() => {
+                  logout();
+                  navigate('/login');
+                }}
+                className="flex items-center space-x-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2 py-1 rounded-md text-[11px] font-bold transition"
+                title="লগআউট করুন"
               >
-                {isSuperAdmin ? (
-                  <Crown className="w-3.5 h-3.5 text-amber-400" />
-                ) : isStoreOwner ? (
-                  <Store className="w-3.5 h-3.5 text-indigo-400" />
-                ) : isStoreStaff ? (
-                  <ShieldAlert className="w-3.5 h-3.5 text-blue-400" />
-                ) : (
-                  <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-                )}
-                <span className="font-semibold capitalize">
-                  {user ? (user.role === 'super_admin' ? 'Super Admin' : user.role === 'store_owner' ? 'Store Owner' : user.role === 'store_staff' ? 'Manager' : 'Customer') : 'Guest'}
-                </span>
-                <ChevronDown className="w-3 h-3 text-amber-400" />
+                <LogOut className="w-3 h-3" />
+                <span>লগআউট</span>
               </button>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center space-x-1 bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded-md text-[11px] font-bold transition shadow"
+              >
+                <Lock className="w-3 h-3" />
+                <span>লগইন (Login)</span>
+              </Link>
+            )}
 
-              {isRoleDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-1 z-50 animate-fade-in">
-                  <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-slate-800">
-                    TEST ROLE AS:
-                  </div>
-                  <button
-                    onClick={() => handleRoleSwitch('super_admin')}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center space-x-2 text-amber-300 hover:bg-slate-800"
-                  >
-                    <Crown className="w-4 h-4 text-amber-400" />
-                    <div>
-                      <div className="font-medium">Super Admin</div>
-                      <div className="text-[10px] text-slate-400">Platform-wide control & plans</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleRoleSwitch('store_owner')}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center space-x-2 text-indigo-300 hover:bg-slate-800"
-                  >
-                    <Store className="w-4 h-4 text-indigo-400" />
-                    <div>
-                      <div className="font-medium">Store Owner</div>
-                      <div className="text-[10px] text-slate-400">Products, orders, themes & staff</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleRoleSwitch('store_staff')}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center space-x-2 text-blue-300 hover:bg-slate-800"
-                  >
-                    <ShieldAlert className="w-4 h-4 text-blue-400" />
-                    <div>
-                      <div className="font-medium">Store Manager / Staff</div>
-                      <div className="text-[10px] text-slate-400">Order fulfillment & inventory</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleRoleSwitch('customer')}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center space-x-2 text-emerald-300 hover:bg-slate-800"
-                  >
-                    <UserCheck className="w-4 h-4 text-emerald-400" />
-                    <div>
-                      <div className="font-medium">Customer</div>
-                      <div className="text-[10px] text-slate-400">Shopping, wishlist & tracking</div>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Dismiss / Hide button */}
+            <button
+              onClick={() => setIsDismissed(true)}
+              className="text-slate-500 hover:text-slate-300 p-1 rounded-md"
+              title="এই বারটি লুকান (Hide Bar)"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
