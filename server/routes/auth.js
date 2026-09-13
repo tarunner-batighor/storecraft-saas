@@ -181,6 +181,50 @@ router.get('/me', verifyAuth, (req, res) => {
   res.json({ success: true, user: safeUser, tenant, isAuthenticated: true });
 });
 
+router.post('/change-password', verifyAuth, (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'লগইন আবশ্যক (Login required)' });
+    }
+    const { current_password, new_password, name, phone } = req.body;
+    
+    const user = db.findById('users', req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'ইউজার পাওয়া যায়নি।' });
+    }
+
+    if (new_password) {
+      if (new_password.length < 6) {
+        return res.status(400).json({ success: false, message: 'নতুন পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।' });
+      }
+      if (current_password) {
+        const isMatch = bcrypt.compareSync(current_password, user.password_hash);
+        if (!isMatch) {
+          return res.status(400).json({ success: false, message: 'বর্তমান পাসওয়ার্ডটি সঠিক নয়।' });
+        }
+      }
+      const newHash = bcrypt.hashSync(new_password, 8);
+      db.update('users', user.id, { 
+        password_hash: newHash,
+        ...(name ? { name } : {}),
+        ...(phone ? { phone } : {})
+      });
+    } else {
+      db.update('users', user.id, { 
+        ...(name ? { name } : {}),
+        ...(phone ? { phone } : {})
+      });
+    }
+
+    const updatedUser = db.findById('users', user.id);
+    const { password_hash, ...safeUser } = updatedUser;
+
+    res.json({ success: true, message: 'প্রোফাইল ও পাসওয়ার্ড সফলভাবে আপডেট হয়েছে!', user: safeUser });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।' });
+  }
+});
+
 router.post('/demo-switch', (req, res) => {
   try {
     const { role, tenant_slug, user_id } = req.body;

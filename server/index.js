@@ -75,7 +75,7 @@ app.patch('/api/notifications/read-all', verifyAuth, (req, res) => {
   res.json({ success: true });
 });
 
-// Mount Routes
+// Mount API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/platform', platformRoutes);
 app.use('/api/tenant', tenantRoutes);
@@ -96,16 +96,23 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-const distPath = path.join(__dirname, '../dist');
+// Serve Frontend dist
+const distPath = path.resolve(__dirname, '../dist');
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
-  app.use((req, res, next) => {
-    if (!req.path.startsWith('/api') && req.method === 'GET') {
-      return res.sendFile(path.join(distPath, 'index.html'));
-    }
-    next();
-  });
 }
+
+// Fallback for Single Page Application (SPA) client routes in Express 5
+app.get('{*path}', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ success: false, message: 'API route not found' });
+  }
+  const indexFile = path.resolve(distPath, 'index.html');
+  if (fs.existsSync(indexFile)) {
+    return res.sendFile(indexFile);
+  }
+  res.status(200).send('<h1>StoreCraft SaaS Server is Running</h1><p>Frontend assets are being built...</p>');
+});
 
 runSeed(false);
 

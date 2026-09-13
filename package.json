@@ -2,9 +2,11 @@
   "name": "storecraft",
   "version": "1.0.0",
   "main": "server/index.js",
+  "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
+    "postinstall": "vite build",
     "server": "node server/index.js",
     "start": "node server/index.js"
   },
@@ -36,6 +38,5 @@
     "tailwindcss": "^4.3.3",
     "uuid": "^14.0.2",
     "vite": "^8.3.0"
-  },
-  "type": "module"
+  }
 }

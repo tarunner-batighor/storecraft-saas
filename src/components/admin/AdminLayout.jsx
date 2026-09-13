@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTenant } from '../../context/TenantContext';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../utils/api';
+import ProfilePasswordModal from '../common/ProfilePasswordModal';
 import {
   LayoutDashboard,
   Package,
@@ -23,7 +24,9 @@ import {
   ShieldCheck,
   Sparkles,
   ChevronRight,
-  LogOut
+  LogOut,
+  Settings,
+  KeyRound
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -35,6 +38,7 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchNotifs = async () => {
@@ -74,6 +78,9 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex">
+      {/* Profile & Password Modal */}
+      <ProfilePasswordModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
+
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
         <div
@@ -139,6 +146,17 @@ export default function AdminLayout() {
 
         {/* Footer / Storefront link */}
         <div className="p-4 border-t border-slate-800 space-y-2">
+          <button
+            onClick={() => setProfileModalOpen(true)}
+            className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 transition"
+          >
+            <span className="flex items-center space-x-2">
+              <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+              <span>পাসওয়ার্ড পরিবর্তন</span>
+            </span>
+            <span className="text-[10px] text-slate-400">Settings</span>
+          </button>
+
           <Link
             to={`/store/${currentSlug}`}
             target="_blank"
@@ -213,18 +231,25 @@ export default function AdminLayout() {
               )}
             </div>
 
-            {/* User Profile Pill */}
-            <div className="flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-700">
+            {/* User Profile Pill -> Opens Password Modal on Click */}
+            <button
+              onClick={() => setProfileModalOpen(true)}
+              className="flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-700 hover:opacity-80 transition cursor-pointer p-1 rounded-xl"
+              title="Click to update Profile & Password"
+            >
               <img
                 src={user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'}
                 alt={user?.name}
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-sky-500/30"
               />
               <div className="hidden sm:block text-left">
-                <div className="text-xs font-bold text-slate-900 dark:text-white leading-none">{user?.name || 'Owner'}</div>
-                <div className="text-[10px] text-slate-400 capitalize">{user?.role?.replace('_', ' ') || 'Staff'}</div>
+                <div className="text-xs font-bold text-slate-900 dark:text-white leading-none flex items-center space-x-1">
+                  <span>{user?.name || 'Owner'}</span>
+                  <KeyRound className="w-3 h-3 text-sky-500" />
+                </div>
+                <div className="text-[10px] text-slate-400 capitalize">{user?.role?.replace('_', ' ') || 'Staff'} (Edit)</div>
               </div>
-            </div>
+            </button>
           </div>
         </header>
 
