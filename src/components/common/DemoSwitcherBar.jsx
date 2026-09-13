@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Store,
@@ -16,8 +17,7 @@ import {
   RefreshCw,
   Lock,
   LogOut,
-  Eye,
-  EyeOff,
+  Globe,
   X
 } from 'lucide-react';
 import CreateStoreModal from './CreateStoreModal';
@@ -25,11 +25,11 @@ import CreateStoreModal from './CreateStoreModal';
 export default function DemoSwitcherBar() {
   const { currentSlug, currentTenant, availableStores, switchTenant, refreshTenant } = useTenant();
   const { user, isSuperAdmin, isStoreOwner, isStoreStaff, isCustomer, demoSwitch, logout, isAuthenticated } = useAuth();
+  const { lang, isBn, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
-  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
   const isSuperAdminView = location.pathname.startsWith('/super-admin');
@@ -39,7 +39,14 @@ export default function DemoSwitcherBar() {
 
   if (isDismissed) {
     return (
-      <div className="fixed bottom-3 right-3 z-50">
+      <div className="fixed bottom-3 right-3 z-50 flex items-center space-x-2">
+        <button
+          onClick={toggleLanguage}
+          className="bg-slate-900/90 text-slate-300 hover:text-white border border-slate-700 px-2.5 py-1.5 rounded-full shadow-2xl flex items-center space-x-1 text-xs font-bold transition"
+        >
+          <Globe className="w-3.5 h-3.5 text-sky-400" />
+          <span>{isBn ? 'EN' : 'বাং'}</span>
+        </button>
         <button
           onClick={() => setIsDismissed(false)}
           className="bg-slate-900/90 text-slate-300 hover:text-white border border-slate-700 p-2 rounded-full shadow-2xl flex items-center space-x-1.5 text-xs font-bold transition"
@@ -59,18 +66,6 @@ export default function DemoSwitcherBar() {
       navigate('/admin');
     } else if (isStorefrontView) {
       navigate(`/store/${slug}`);
-    }
-  };
-
-  const handleRoleSwitch = async (role) => {
-    setIsRoleDropdownOpen(false);
-    await demoSwitch(role, currentSlug);
-    if (role === 'super_admin') {
-      navigate('/super-admin');
-    } else if (role === 'store_owner' || role === 'store_staff') {
-      navigate('/admin');
-    } else {
-      navigate(`/store/${currentSlug}`);
     }
   };
 
@@ -112,7 +107,7 @@ export default function DemoSwitcherBar() {
               {isStoreDropdownOpen && (
                 <div className="absolute left-0 mt-1.5 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-1 z-50 animate-fade-in">
                   <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-slate-800 flex justify-between items-center">
-                    <span>দোকান পরিবর্তন করুন</span>
+                    <span>{isBn ? 'দোকান পরিবর্তন করুন' : 'Switch Store'}</span>
                     <button onClick={refreshTenant} className="hover:text-white" title="Refresh">
                       <RefreshCw className="w-3 h-3" />
                     </button>
@@ -149,7 +144,7 @@ export default function DemoSwitcherBar() {
                       className="w-full flex items-center justify-center space-x-1 text-emerald-400 hover:bg-emerald-950/50 py-1.5 rounded text-xs font-semibold"
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
-                      <span>+ নতুন স্টোর খুলুন</span>
+                      <span>{isBn ? '+ নতুন স্টোর খুলুন' : '+ Create New Store'}</span>
                     </button>
                   </div>
                 </div>
@@ -157,7 +152,7 @@ export default function DemoSwitcherBar() {
             </div>
           </div>
 
-          {/* Right: Quick Links, Role, Login & Dismiss */}
+          {/* Right: Quick Links, Role, Language, Login & Dismiss */}
           <div className="flex items-center space-x-2">
             {/* View Switcher Tabs */}
             <div className="flex items-center bg-slate-800 p-0.5 rounded-lg border border-slate-700">
@@ -198,6 +193,16 @@ export default function DemoSwitcherBar() {
               </button>
             </div>
 
+            {/* Language Switcher Pill */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2 py-0.5 rounded text-[11px] font-bold transition"
+              title={isBn ? 'Switch to English' : 'বাংলায় পরিবর্তন করুন'}
+            >
+              <Globe className="w-3 h-3 text-sky-400" />
+              <span>{isBn ? 'EN' : 'বাং'}</span>
+            </button>
+
             {/* Login / Logout Button */}
             {isAuthenticated ? (
               <button
@@ -206,10 +211,10 @@ export default function DemoSwitcherBar() {
                   navigate('/login');
                 }}
                 className="flex items-center space-x-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2 py-1 rounded-md text-[11px] font-bold transition"
-                title="লগআউট করুন"
+                title={isBn ? 'লগআউট করুন' : 'Logout'}
               >
                 <LogOut className="w-3 h-3" />
-                <span>লগআউট</span>
+                <span>{isBn ? 'লগআউট' : 'Logout'}</span>
               </button>
             ) : (
               <Link
@@ -217,7 +222,7 @@ export default function DemoSwitcherBar() {
                 className="flex items-center space-x-1 bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded-md text-[11px] font-bold transition shadow"
               >
                 <Lock className="w-3 h-3" />
-                <span>লগইন (Login)</span>
+                <span>{isBn ? 'লগইন' : 'Login'}</span>
               </Link>
             )}
 
@@ -225,7 +230,7 @@ export default function DemoSwitcherBar() {
             <button
               onClick={() => setIsDismissed(true)}
               className="text-slate-500 hover:text-slate-300 p-1 rounded-md"
-              title="এই বারটি লুকান (Hide Bar)"
+              title="Hide Bar"
             >
               <X className="w-3.5 h-3.5" />
             </button>

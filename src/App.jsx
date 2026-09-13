@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet, useParams } from 'react
 import { TenantProvider, useTenant } from './context/TenantContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Common Components
 import DemoSwitcherBar from './components/common/DemoSwitcherBar';
@@ -75,75 +76,77 @@ function DirectStorefrontRedirect({ targetPath = '' }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <TenantProvider>
-        <AuthProvider>
-          <CartProvider>
-            {/* Global Store & Demo Switcher Bar */}
-            <DemoSwitcherBar />
+      <LanguageProvider>
+        <TenantProvider>
+          <AuthProvider>
+            <CartProvider>
+              {/* Global Store & Demo Switcher Bar */}
+              <DemoSwitcherBar />
 
-            <Routes>
-              {/* Login Page */}
-              <Route path="/login" element={<LoginPage />} />
+              <Routes>
+                {/* Login Page */}
+                <Route path="/login" element={<LoginPage />} />
 
-              {/* SaaS Platform Landing */}
-              <Route path="/" element={<SaasLandingPage />} />
-              <Route path="/platform" element={<SaasLandingPage />} />
+                {/* SaaS Platform Landing */}
+                <Route path="/" element={<SaasLandingPage />} />
+                <Route path="/platform" element={<SaasLandingPage />} />
 
-              {/* Direct Storefront Shortcuts -> Resolves to active tenant */}
-              <Route path="/catalog" element={<DirectStorefrontRedirect targetPath="catalog" />} />
-              <Route path="/checkout" element={<DirectStorefrontRedirect targetPath="checkout" />} />
-              <Route path="/track" element={<DirectStorefrontRedirect targetPath="track" />} />
-              <Route path="/account" element={<DirectStorefrontRedirect targetPath="account" />} />
+                {/* Direct Storefront Shortcuts -> Resolves to active tenant */}
+                <Route path="/catalog" element={<DirectStorefrontRedirect targetPath="catalog" />} />
+                <Route path="/checkout" element={<DirectStorefrontRedirect targetPath="checkout" />} />
+                <Route path="/track" element={<DirectStorefrontRedirect targetPath="track" />} />
+                <Route path="/account" element={<DirectStorefrontRedirect targetPath="account" />} />
 
-              {/* Protected Super Admin Control Center */}
-              <Route
-                path="/super-admin"
-                element={
-                  <ProtectedRoute requiredRole="super_admin">
-                    <SuperAdminDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected Super Admin Control Center */}
+                <Route
+                  path="/super-admin"
+                  element={
+                    <ProtectedRoute requiredRole="super_admin">
+                      <SuperAdminDashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Protected Store Owner / Staff Admin Panel */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requiredRole="store_admin">
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboardPage />} />
-                <Route path="products" element={<AdminProductsPage />} />
-                <Route path="orders" element={<AdminOrdersPage />} />
-                <Route path="coupons" element={<AdminCouponsPage />} />
-                <Route path="reports" element={<AdminReportsPage />} />
-                <Route path="branding" element={<AdminBrandingPage />} />
-                <Route path="domain" element={<AdminCustomDomainPage />} />
-                <Route path="payments" element={<AdminPaymentSettingsPage />} />
-                <Route path="couriers" element={<AdminCourierSettingsPage />} />
-                <Route path="staff" element={<AdminStaffPage />} />
-                <Route path="subscription" element={<AdminSubscriptionPage />} />
-              </Route>
+                {/* Protected Store Owner / Staff Admin Panel */}
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute requiredRole="store_admin">
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboardPage />} />
+                  <Route path="products" element={<AdminProductsPage />} />
+                  <Route path="orders" element={<AdminOrdersPage />} />
+                  <Route path="coupons" element={<AdminCouponsPage />} />
+                  <Route path="reports" element={<AdminReportsPage />} />
+                  <Route path="branding" element={<AdminBrandingPage />} />
+                  <Route path="domain" element={<AdminCustomDomainPage />} />
+                  <Route path="payments" element={<AdminPaymentSettingsPage />} />
+                  <Route path="couriers" element={<AdminCourierSettingsPage />} />
+                  <Route path="staff" element={<AdminStaffPage />} />
+                  <Route path="subscription" element={<AdminSubscriptionPage />} />
+                </Route>
 
-              {/* White-Label Multi-Tenant Storefront Routes */}
-              <Route path="/store/:tenantSlug" element={<StorefrontLayout />}>
-                <Route index element={<StoreHomePage />} />
-                <Route path="catalog" element={<StoreCatalogPage />} />
-                <Route path="product/:productSlug" element={<StoreProductDetailPage />} />
-                <Route path="checkout" element={<StoreCheckoutPage />} />
-                <Route path="order-success/:orderNumber" element={<StoreOrderSuccessPage />} />
-                <Route path="track" element={<StoreTrackOrderPage />} />
-                <Route path="account" element={<StoreCustomerAccountPage />} />
-              </Route>
+                {/* White-Label Multi-Tenant Storefront Routes */}
+                <Route path="/store/:tenantSlug" element={<StorefrontLayout />}>
+                  <Route index element={<StoreHomePage />} />
+                  <Route path="catalog" element={<StoreCatalogPage />} />
+                  <Route path="product/:productSlug" element={<StoreProductDetailPage />} />
+                  <Route path="checkout" element={<StoreCheckoutPage />} />
+                  <Route path="order-success/:orderNumber" element={<StoreOrderSuccessPage />} />
+                  <Route path="track" element={<StoreTrackOrderPage />} />
+                  <Route path="account" element={<StoreCustomerAccountPage />} />
+                </Route>
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </CartProvider>
-        </AuthProvider>
-      </TenantProvider>
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </CartProvider>
+          </AuthProvider>
+        </TenantProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

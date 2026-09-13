@@ -490,5 +490,183 @@ export function runSeed(force = false) {
     is_active: true
   });
 
-  console.log('[Seed] Multi-tenant seed completed successfully!');
+  // ================= TENANT 3: GREENGROCER =================
+  const tenantGreen = db.insert('tenants', {
+    id: 'tenant-greengrocer',
+    name: 'GreenGrocer Organic Farm',
+    slug: 'greengrocer',
+    custom_domain: 'greengrocer.storecraft.io',
+    status: 'active',
+    plan_id: 'plan-starter',
+    plan_expires_at: '2027-12-31T23:59:59Z',
+    branding: {
+      tagline: '১০০% খাঁটি ও অর্গানিক গ্রোসারি পণ্য আপনার দোরগোড়ায়',
+      logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=150&q=80',
+      primary_color: '#16a34a',
+      secondary_color: '#064e3b',
+      accent_color: '#eab308',
+      font: 'Inter',
+      top_bar_text: '🥬 গ্রিনগ্রোসারে তাজা শাকসবজি ও খাঁটি মধু অর্ডার করুন | কোড: ORGANIC5',
+      top_bar_enabled: true,
+      currency: 'BDT',
+      currency_symbol: '৳',
+      contact_email: 'support@greengrocer.com',
+      contact_phone: '+880 1911-556677',
+      address: 'বাড়ি #১২, রোড #৪, গুলশান-২, ঢাকা',
+      footer_text: '© 2026 GreenGrocer Organic Farm. ফ্রেশ অর্গানিক পণ্যের নিশ্চয়তা।',
+      hero_slides: [
+        {
+          id: 'slide-gg-1',
+          title: 'ফার্ম-ফ্রেশ তাজা শাকসবজি ও ফলমূল',
+          subtitle: 'রাসায়নিক ও ফরমালিনমুক্ত ১০০% খাঁটি পুষ্টি উপাদান',
+          badge: 'আজকের ফ্রেশ স্টক',
+          button_text: 'বাজার করুন',
+          button_link: '/catalog',
+          bg_gradient: 'from-emerald-950 via-green-900 to-slate-900',
+          image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80'
+        }
+      ]
+    },
+    courier_settings: { steadfast: { enabled: true, default: true } },
+    payment_settings: { cod_enabled: true, bkash_enabled: true, bkash_number: '01911556677' }
+  });
+
+  const catGreen = db.insert('categories', {
+    tenant_id: tenantGreen.id,
+    name: 'তাজা শাকসবজি ও ফ্রুটস',
+    slug: 'fresh-produce',
+    image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=400&q=80',
+    is_featured: true,
+    sort_order: 1
+  }, tenantGreen.id);
+
+  db.insert('products', {
+    tenant_id: tenantGreen.id,
+    name: 'সুন্দরবনের খাঁটি প্রাকৃতিক মধু (১ কেজি)',
+    slug: 'sundarban-raw-honey-1kg',
+    sku: 'HONEY-RAW-1KG',
+    category_id: catGreen.id,
+    price: 1150,
+    compare_at_price: 1350,
+    stock_quantity: 45,
+    is_published: true,
+    is_featured: true,
+    images: ['https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=800&q=80'],
+    rating_avg: 4.95,
+    rating_count: 38
+  }, tenantGreen.id);
+
+  db.insert('shipping_zones', {
+    tenant_id: tenantGreen.id,
+    name: 'Dhaka City Express Delivery',
+    cities: ['Dhaka'],
+    rate: 60,
+    free_shipping_threshold: 1500,
+    estimated_days: 'Same Day'
+  }, tenantGreen.id);
+
+  db.insert('users', {
+    id: 'user-owner-green',
+    tenant_id: tenantGreen.id,
+    role: 'store_owner',
+    name: 'Kazi Farhan',
+    email: 'owner@greengrocer.com',
+    password_hash: bcrypt.hashSync('owner123', 8),
+    phone: '+880 1911-556677',
+    is_active: true
+  });
+
+  // ================= TENANT 4: SILK & COTTON =================
+  const tenantSilk = db.insert('tenants', {
+    id: 'tenant-silkandcotton',
+    name: 'Silk & Cotton Lifestyle',
+    slug: 'silkandcotton',
+    custom_domain: 'silkandcotton.storecraft.io',
+    status: 'active',
+    plan_id: 'plan-growth',
+    plan_expires_at: '2027-12-31T23:59:59Z',
+    branding: {
+      tagline: 'এক্সক্লুসিভ ডিজাইনার পাঞ্জাবি, শাড়ি ও প্রিমিয়াম ফ্যাশন',
+      logo: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=150&q=80',
+      primary_color: '#d97706',
+      secondary_color: '#451a03',
+      accent_color: '#f59e0b',
+      font: 'Playfair Display',
+      top_bar_text: '✨ প্রিমিয়াম ঈদ ও উৎসব কালেকশনে ফ্ল্যাট ২০% ডিসকাউন্ট | কোড: FESTIVE20',
+      top_bar_enabled: true,
+      currency: 'BDT',
+      currency_symbol: '৳',
+      contact_email: 'support@silkandcotton.com',
+      contact_phone: '+880 1711-998877',
+      address: 'রোড #১১, বনানী, ঢাকা-১২১৩',
+      footer_text: '© 2026 Silk & Cotton Lifestyle. ১০০% প্রিমিয়াম ফেব্রিক ও এক্সক্লুসিভ কালেকশন।',
+      hero_slides: [
+        {
+          id: 'slide-sc-1',
+          title: 'এক্সক্লুসিভ প্রিমিয়াম পাঞ্জাবি কালেকশন',
+          subtitle: '১০০% পিওর কটন ও সিল্ক ফেব্রিকের সাথে প্রিমিয়াম এমব্রয়ডারি',
+          badge: 'নতুন কালেকশন',
+          button_text: 'কালেকশন দেখুন',
+          button_link: '/catalog',
+          bg_gradient: 'from-amber-950 via-slate-900 to-amber-950',
+          image: 'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=800&q=80'
+        }
+      ]
+    },
+    courier_settings: { pathao: { enabled: true, default: true } },
+    payment_settings: { cod_enabled: true, bkash_enabled: true, bkash_number: '01711998877', nagad_enabled: true }
+  });
+
+  const catSilk = db.insert('categories', {
+    tenant_id: tenantSilk.id,
+    name: 'পাঞ্জাবি ও কাবলি',
+    slug: 'panjabi-collection',
+    image: 'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=400&q=80',
+    is_featured: true,
+    sort_order: 1
+  }, tenantSilk.id);
+
+  db.insert('products', {
+    tenant_id: tenantSilk.id,
+    name: 'এক্সক্লুসিভ হ্যান্ড-এমব্রয়ডারি কটন পাঞ্জাবি',
+    slug: 'exclusive-hand-embroidery-cotton-panjabi',
+    sku: 'SILK-PJ-001',
+    category_id: catSilk.id,
+    price: 3450,
+    compare_at_price: 4200,
+    stock_quantity: 30,
+    is_published: true,
+    is_featured: true,
+    has_variants: true,
+    variants: [
+      { id: 'v-pj-m', name: 'Medium (40)', sku: 'SILK-PJ-M', price: 3450, stock_quantity: 12 },
+      { id: 'v-pj-l', name: 'Large (42)', sku: 'SILK-PJ-L', price: 3450, stock_quantity: 10 },
+      { id: 'v-pj-xl', name: 'XL (44)', sku: 'SILK-PJ-XL', price: 3650, stock_quantity: 8 }
+    ],
+    images: ['https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=800&q=80'],
+    rating_avg: 4.9,
+    rating_count: 24
+  }, tenantSilk.id);
+
+  db.insert('shipping_zones', {
+    tenant_id: tenantSilk.id,
+    name: 'Dhaka City Standard',
+    cities: ['Dhaka'],
+    rate: 70,
+    free_shipping_threshold: 3000,
+    estimated_days: '1-2 Days'
+  }, tenantSilk.id);
+
+  db.insert('users', {
+    id: 'user-owner-silk',
+    tenant_id: tenantSilk.id,
+    role: 'store_owner',
+    name: 'Nadia Rahman',
+    email: 'owner@silkandcotton.com',
+    password_hash: bcrypt.hashSync('owner123', 8),
+    phone: '+880 1711-998877',
+    is_active: true
+  });
+
+  console.log('[Seed] All 4 multi-tenant stores initialized successfully!');
 }
