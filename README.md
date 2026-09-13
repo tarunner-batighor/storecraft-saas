@@ -20,7 +20,7 @@ The application includes a **Top Floating Demo Switcher** that allows 1-click sw
 
 | Role | Email | Password | Access Level |
 |---|---|---|---|
-| **Super Admin** | `admin@storecraft.io` | `password123` | Platform Metrics, MRR, Plans, Tenant Management |
+| **Super Admin** | `abdulhadibinmasud775@gmail.com` | `password123` | Platform Metrics, MRR, Plans, Tenant Management |
 | **GadgetVibe Owner** | `rahim@gadgetvibe.com` | `password123` | Store Products, Orders, Theme, Staff, Couriers |
 | **GadgetVibe Staff (Manager)** | `karim@gadgetvibe.com` | `password123` | Order Fulfillment, Stock Adjustments |
 | **Silk & Cotton Owner** | `nusrat@silkandcotton.com` | `password123` | Fashion Boutique Management |
