@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
+
 const router = express.Router();
-const db = require('../db');
-const bcrypt = require('bcryptjs');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
 
 // Public Store Info endpoint (Used by storefront for branding, colors, logos, banners)
 router.get('/info', requireTenant, (req, res) => {
@@ -188,4 +189,4 @@ router.delete('/staff/:id', (req, res) => {
   res.json({ success: true, message: 'Staff member removed' });
 });
 
-module.exports = router;
+export default router;

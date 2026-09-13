@@ -1,18 +1,17 @@
-const express = require('express');
+import express from 'express';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
+
 const router = express.Router();
-const db = require('../db');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
 
 router.use(requireTenant);
 
-// GET /api/shipping/zones (Public)
 router.get('/zones', (req, res) => {
   const zones = db.find('shipping_zones', {}, req.tenant.id);
   res.json({ success: true, zones });
 });
 
-// Admin Shipping Management
 router.use(verifyAuth);
 router.use(requireTenantStaff);
 
@@ -44,4 +43,4 @@ router.delete('/zones/:id', (req, res) => {
   res.json({ success: true, message: 'Shipping zone deleted' });
 });
 
-module.exports = router;
+export default router;

@@ -1,9 +1,9 @@
-const jwt = require('jsonwebtoken');
-const db = require('../db');
+import jwt from 'jsonwebtoken';
+import db from '../db.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'storecraft_super_secure_jwt_secret_key_2026';
+export const JWT_SECRET = process.env.JWT_SECRET || 'storecraft_super_secure_jwt_secret_key_2026';
 
-function generateToken(user) {
+export function generateToken(user) {
   return jwt.sign(
     {
       id: user.id,
@@ -18,7 +18,7 @@ function generateToken(user) {
   );
 }
 
-function verifyAuth(req, res, next) {
+export function verifyAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     req.user = null;
@@ -40,7 +40,7 @@ function verifyAuth(req, res, next) {
   next();
 }
 
-function requireAuth(req, res, next) {
+export function requireAuth(req, res, next) {
   if (!req.user) {
     return res.status(401).json({
       success: false,
@@ -51,7 +51,7 @@ function requireAuth(req, res, next) {
   next();
 }
 
-function requireSuperAdmin(req, res, next) {
+export function requireSuperAdmin(req, res, next) {
   if (!req.user || req.user.role !== 'super_admin') {
     return res.status(403).json({
       success: false,
@@ -62,17 +62,15 @@ function requireSuperAdmin(req, res, next) {
   next();
 }
 
-function requireTenantStaff(req, res, next) {
+export function requireTenantStaff(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }
 
-  // Super admin can access any tenant
   if (req.user.role === 'super_admin') {
     return next();
   }
 
-  // Tenant owner or staff belonging to this tenant
   if (
     (req.user.role === 'store_owner' || req.user.role === 'store_staff') &&
     req.tenantId &&
@@ -88,7 +86,7 @@ function requireTenantStaff(req, res, next) {
   });
 }
 
-function checkPermission(permission) {
+export function checkPermission(permission) {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'Authentication required' });
@@ -106,13 +104,3 @@ function checkPermission(permission) {
     });
   };
 }
-
-module.exports = {
-  JWT_SECRET,
-  generateToken,
-  verifyAuth,
-  requireAuth,
-  requireSuperAdmin,
-  requireTenantStaff,
-  checkPermission
-};

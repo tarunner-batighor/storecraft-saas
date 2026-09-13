@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
+
 const router = express.Router();
-const db = require('../db');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
 
 router.use(requireTenant);
 
-// POST /api/coupons/validate (Public Validation for Checkout / Cart)
 router.post('/validate', (req, res) => {
   try {
     const { code, subtotal = 0 } = req.body;
@@ -39,7 +39,7 @@ router.post('/validate', (req, res) => {
     } else if (coupon.type === 'fixed') {
       discount = Math.min(coupon.value, subtotal);
     } else if (coupon.type === 'free_shipping') {
-      discount = 60; // Standard shipping offset
+      discount = 60;
     }
 
     res.json({
@@ -57,17 +57,14 @@ router.post('/validate', (req, res) => {
   }
 });
 
-// Admin coupon management
 router.use(verifyAuth);
 router.use(requireTenantStaff);
 
-// GET /api/coupons
 router.get('/', (req, res) => {
   const coupons = db.find('coupons', {}, req.tenant.id);
   res.json({ success: true, coupons });
 });
 
-// POST /api/coupons
 router.post('/', (req, res) => {
   try {
     const { code, type = 'percentage', value, min_order_amount = 0, max_discount = null, usage_limit = 100 } = req.body;
@@ -99,16 +96,14 @@ router.post('/', (req, res) => {
   }
 });
 
-// PUT /api/coupons/:id
 router.put('/:id', (req, res) => {
   const updated = db.update('coupons', req.params.id, req.body, req.tenant.id);
   res.json({ success: true, message: 'Coupon updated', coupon: updated });
 });
 
-// DELETE /api/coupons/:id
 router.delete('/:id', (req, res) => {
   db.delete('coupons', req.params.id, req.tenant.id);
   res.json({ success: true, message: 'Coupon deleted' });
 });
 
-module.exports = router;
+export default router;

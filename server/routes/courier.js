@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
+
 const router = express.Router();
-const db = require('../db');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
 
 router.use(requireTenant);
 router.use(verifyAuth);
 router.use(requireTenantStaff);
 
-// GET /api/courier/providers
 router.get('/providers', (req, res) => {
   const tenant = db.findById('tenants', req.tenant.id);
   const settings = tenant.courier_settings || {};
@@ -43,14 +43,13 @@ router.get('/providers', (req, res) => {
   res.json({ success: true, providers });
 });
 
-// POST /api/courier/estimate
 router.post('/estimate', (req, res) => {
   const { provider = 'pathao', destination_city = 'Dhaka', weight_kg = 1 } = req.body;
   const isInsideDhaka = destination_city.toLowerCase().includes('dhaka');
   
   let baseRate = isInsideDhaka ? 60 : 120;
   let extraWeightCharge = Math.max(0, weight_kg - 1) * 20;
-  let codFee = 10; // 1% or flat
+  let codFee = 10;
 
   const totalEstimate = baseRate + extraWeightCharge + codFee;
 
@@ -67,4 +66,4 @@ router.post('/estimate', (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;

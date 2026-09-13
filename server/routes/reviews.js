@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
+
 const router = express.Router();
-const db = require('../db');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
 
 router.use(requireTenant);
 
-// GET /api/reviews (Public or filter by product_id)
 router.get('/', (req, res) => {
   const { product_id } = req.query;
   let reviews = db.find('reviews', {}, req.tenant.id);
@@ -15,7 +15,6 @@ router.get('/', (req, res) => {
     reviews = reviews.filter(r => r.product_id === product_id);
   }
 
-  // Only return approved reviews unless staff
   if (req.query.all !== 'true') {
     reviews = reviews.filter(r => r.is_approved !== false);
   }
@@ -24,7 +23,6 @@ router.get('/', (req, res) => {
   res.json({ success: true, reviews });
 });
 
-// POST /api/reviews (Public Customer Review Submission)
 router.post('/', (req, res) => {
   try {
     const { product_id, customer_name, rating = 5, comment, photos = [] } = req.body;
@@ -45,10 +43,9 @@ router.post('/', (req, res) => {
       rating: Math.min(5, Math.max(1, Number(rating))),
       comment,
       photos: Array.isArray(photos) ? photos : [],
-      is_approved: true // Auto-approved in demo
+      is_approved: true
     }, req.tenant.id);
 
-    // Update Product average rating & count
     const allProductReviews = db.find('reviews', { product_id, is_approved: true }, req.tenant.id);
     const avg = allProductReviews.reduce((sum, r) => sum + r.rating, 0) / allProductReviews.length;
     
@@ -67,7 +64,6 @@ router.post('/', (req, res) => {
   }
 });
 
-// Admin Review moderation
 router.use(verifyAuth);
 router.use(requireTenantStaff);
 
@@ -82,4 +78,4 @@ router.delete('/:id', (req, res) => {
   res.json({ success: true, message: 'Review deleted' });
 });
 
-module.exports = router;
+export default router;

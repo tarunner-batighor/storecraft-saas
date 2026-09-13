@@ -1,24 +1,37 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
-const db = require('./db');
-const { resolveTenant } = require('./middleware/tenant');
-const { verifyAuth } = require('./middleware/auth');
-const { runSeed } = require('./seed');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+import db from './db.js';
+import { resolveTenant } from './middleware/tenant.js';
+import { verifyAuth } from './middleware/auth.js';
+import { runSeed } from './seed.js';
+
+import authRoutes from './routes/auth.js';
+import platformRoutes from './routes/platform.js';
+import tenantRoutes from './routes/tenant.js';
+import productsRoutes from './routes/products.js';
+import ordersRoutes from './routes/orders.js';
+import couponsRoutes from './routes/coupons.js';
+import shippingRoutes from './routes/shipping.js';
+import reviewsRoutes from './routes/reviews.js';
+import analyticsRoutes from './routes/analytics.js';
+import courierRoutes from './routes/courier.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Tenant Context Resolver for all requests
 app.use(resolveTenant);
 
-// Public SaaS Platform routes (For landing page, store explorer, pricing)
 app.get('/api/public/stores', (req, res) => {
   const tenants = db.find('tenants', { status: 'active' });
   const plans = db.find('plans');
@@ -43,7 +56,6 @@ app.get('/api/public/plans', (req, res) => {
   res.json({ success: true, plans });
 });
 
-// Notifications endpoint (Tenant scoped)
 app.get('/api/notifications', verifyAuth, (req, res) => {
   if (!req.tenantId) {
     return res.json({ success: true, notifications: [] });
@@ -64,18 +76,17 @@ app.patch('/api/notifications/read-all', verifyAuth, (req, res) => {
 });
 
 // Mount Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/platform', require('./routes/platform'));
-app.use('/api/tenant', require('./routes/tenant'));
-app.use('/api/products', require('./routes/products'));
-app.use('/api/orders', require('./routes/orders'));
-app.use('/api/coupons', require('./routes/coupons'));
-app.use('/api/shipping', require('./routes/shipping'));
-app.use('/api/reviews', require('./routes/reviews'));
-app.use('/api/analytics', require('./routes/analytics'));
-app.use('/api/courier', require('./routes/courier'));
+app.use('/api/auth', authRoutes);
+app.use('/api/platform', platformRoutes);
+app.use('/api/tenant', tenantRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/coupons', couponsRoutes);
+app.use('/api/shipping', shippingRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/courier', courierRoutes);
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
@@ -85,7 +96,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve Frontend dist in production if available
 const distPath = path.join(__dirname, '../dist');
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
@@ -97,10 +107,8 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-// Seed data check on startup
 runSeed(false);
 
-// Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[StoreCraft Server] Multi-Tenant SaaS API running on http://0.0.0.0:${PORT}`);
 });

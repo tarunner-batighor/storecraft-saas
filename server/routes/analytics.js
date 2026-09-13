@@ -1,21 +1,20 @@
-const express = require('express');
+import express from 'express';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
+
 const router = express.Router();
-const db = require('../db');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
 
 router.use(requireTenant);
 router.use(verifyAuth);
 router.use(requireTenantStaff);
 
-// GET /api/analytics/dashboard
 router.get('/dashboard', (req, res) => {
   try {
     const orders = db.find('orders', {}, req.tenant.id);
     const products = db.find('products', {}, req.tenant.id);
     const customers = db.find('users', { role: 'customer' }, req.tenant.id);
 
-    // 1. Total Metrics
     const totalOrders = orders.length;
     const grossRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
     const paidOrders = orders.filter(o => o.payment_status === 'paid');
@@ -23,7 +22,6 @@ router.get('/dashboard', (req, res) => {
     const avgOrderValue = totalOrders > 0 ? Math.round(grossRevenue / totalOrders) : 0;
     const pendingFulfillments = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
 
-    // 2. Low Stock Alerts
     const lowStockProducts = products.filter(p => {
       if (!p.track_quantity) return false;
       const threshold = p.low_stock_threshold || 5;
@@ -37,7 +35,6 @@ router.get('/dashboard', (req, res) => {
       price: p.price
     }));
 
-    // 3. Status Breakdown
     const statusCounts = {
       pending: 0,
       confirmed: 0,
@@ -52,7 +49,6 @@ router.get('/dashboard', (req, res) => {
       }
     });
 
-    // 4. Sales Over Last 7 Days
     const last7Days = [];
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const now = new Date();
@@ -63,7 +59,6 @@ router.get('/dashboard', (req, res) => {
       const dateStr = d.toISOString().split('T')[0];
       const dayLabel = `${dayNames[d.getDay()]} (${d.getDate()}/${d.getMonth() + 1})`;
 
-      // Sum orders on this day
       const dayOrders = orders.filter(o => o.created_at && o.created_at.startsWith(dateStr));
       const dayRevenue = dayOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
 
@@ -75,7 +70,6 @@ router.get('/dashboard', (req, res) => {
       });
     }
 
-    // 5. Top Selling Products
     const productSalesMap = {};
     orders.forEach(o => {
       if (o.status !== 'cancelled' && Array.isArray(o.items)) {
@@ -99,7 +93,6 @@ router.get('/dashboard', (req, res) => {
       .sort((a, b) => b.total_revenue - a.total_revenue)
       .slice(0, 5);
 
-    // 6. Recent 5 Orders
     const recentOrders = [...orders]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 5);
@@ -137,12 +130,9 @@ router.get('/dashboard', (req, res) => {
   }
 });
 
-// GET /api/analytics/export-csv
 router.get('/export-csv', (req, res) => {
   try {
     const orders = db.find('orders', {}, req.tenant.id);
-    
-    // Create CSV rows
     const headers = ['Order Number', 'Date', 'Customer Name', 'Phone', 'Items Count', 'Subtotal (BDT)', 'Discount', 'Shipping', 'Total (BDT)', 'Payment Method', 'Payment Status', 'Fulfillment Status', 'Courier'];
     const rows = orders.map(o => [
       o.order_number,
@@ -170,4 +160,4 @@ router.get('/export-csv', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

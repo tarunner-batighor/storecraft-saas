@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
+
 const router = express.Router();
-const db = require('../db');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
 
 router.use(requireTenant);
 
@@ -29,7 +30,6 @@ router.post('/checkout', (req, res) => {
       });
     }
 
-    // 1. Calculate subtotal & verify stock
     let subtotal = 0;
     const validatedItems = [];
 
@@ -49,7 +49,6 @@ router.post('/checkout', (req, res) => {
           unitPrice = variant.price;
           variantName = variant.name;
           sku = variant.sku || product.sku;
-          // Check stock
           if (product.track_quantity && (variant.stock_quantity !== undefined && variant.stock_quantity < item.quantity)) {
             return res.status(400).json({ success: false, message: `Insufficient stock for ${product.name} (${variant.name}). Only ${variant.stock_quantity} left.` });
           }
@@ -75,8 +74,7 @@ router.post('/checkout', (req, res) => {
       });
     }
 
-    // 2. Shipping Cost calculation
-    let shippingCost = 60; // Default
+    let shippingCost = 60;
     if (shipping_zone_id) {
       const zone = db.findById('shipping_zones', shipping_zone_id, req.tenant.id);
       if (zone) {
@@ -87,7 +85,6 @@ router.post('/checkout', (req, res) => {
         }
       }
     } else {
-      // Find first shipping zone or default
       const zones = db.find('shipping_zones', {}, req.tenant.id);
       if (zones.length > 0) {
         const zone = zones[0];
@@ -99,7 +96,6 @@ router.post('/checkout', (req, res) => {
       }
     }
 
-    // 3. Coupon Discount calculation
     let discountAmount = 0;
     let appliedCoupon = null;
 
@@ -120,7 +116,6 @@ router.post('/checkout', (req, res) => {
           }
 
           appliedCoupon = coupon.code;
-          // Increment coupon usage
           db.update('coupons', coupon.id, { usage_count: (coupon.usage_count || 0) + 1 }, req.tenant.id);
         }
       }
@@ -128,7 +123,6 @@ router.post('/checkout', (req, res) => {
 
     const totalAmount = Math.max(0, subtotal - discountAmount + shippingCost);
 
-    // 4. Reduce stock
     for (const item of items) {
       const product = db.findById('products', item.product_id, req.tenant.id);
       if (product && product.track_quantity) {
@@ -152,13 +146,11 @@ router.post('/checkout', (req, res) => {
       }
     }
 
-    // 5. Generate unique store order number (e.g. GV-2026-1045)
     const storePrefix = (req.tenant.slug || 'SC').slice(0, 3).toUpperCase();
     const currentYear = new Date().getFullYear();
     const existingCount = db.count('orders', {}, req.tenant.id);
     const orderNumber = `${storePrefix}-${currentYear}-${1001 + existingCount}`;
 
-    // 6. Payment status logic
     let paymentStatus = 'unpaid';
     if (payment_method === 'bkash' && payment_trx_id) {
       paymentStatus = 'paid';
@@ -166,7 +158,6 @@ router.post('/checkout', (req, res) => {
       paymentStatus = 'paid';
     }
 
-    // 7. Insert Order
     const newOrder = db.insert('orders', {
       order_number: orderNumber,
       tenant_id: req.tenant.id,
@@ -206,7 +197,6 @@ router.post('/checkout', (req, res) => {
       admin_notes: ''
     }, req.tenant.id);
 
-    // Create In-App Notification for Store Owner
     db.insert('notifications', {
       tenant_id: req.tenant.id,
       title: 'New Order Received!',
@@ -227,7 +217,7 @@ router.post('/checkout', (req, res) => {
   }
 });
 
-// GET /api/orders/track/:orderNumber (Public Order Tracking)
+// GET /api/orders/track/:orderNumber
 router.get('/track/:orderNumber', (req, res) => {
   const { orderNumber } = req.params;
   const order = db.findOne('orders', o => (o.order_number === orderNumber || o.id === orderNumber), req.tenant.id);
@@ -235,7 +225,6 @@ router.get('/track/:orderNumber', (req, res) => {
     return res.status(404).json({ success: false, message: 'Order not found with this tracking ID' });
   }
 
-  // Return public safe view of order
   res.json({
     success: true,
     order: {
@@ -257,10 +246,9 @@ router.get('/track/:orderNumber', (req, res) => {
   });
 });
 
-// ================= AUTHENTICATED STAFF ORDER ROUTES =================
+// ================= AUTHENTICATED ORDERS =================
 router.use(verifyAuth);
 
-// GET /api/orders/my-orders (For Customer Portal)
 router.get('/my-orders', (req, res) => {
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Login required' });
@@ -270,10 +258,8 @@ router.get('/my-orders', (req, res) => {
   res.json({ success: true, orders });
 });
 
-// Staff permissions required below
 router.use(requireTenantStaff);
 
-// GET /api/orders (Staff List orders)
 router.get('/', (req, res) => {
   try {
     const { status, search, payment_status } = req.query;
@@ -307,7 +293,6 @@ router.get('/', (req, res) => {
   }
 });
 
-// GET /api/orders/:id (Staff View Single Order)
 router.get('/:id', (req, res) => {
   const order = db.findOne('orders', o => (o.id === req.params.id || o.order_number === req.params.id), req.tenant.id);
   if (!order) {
@@ -316,7 +301,6 @@ router.get('/:id', (req, res) => {
   res.json({ success: true, order });
 });
 
-// PATCH /api/orders/:id/status (Update order status & append timeline)
 router.patch('/:id/status', (req, res) => {
   try {
     const { id } = req.params;
@@ -354,18 +338,16 @@ router.patch('/:id/status', (req, res) => {
   }
 });
 
-// POST /api/orders/:id/courier-book (Courier Consignment Dispatch Integration)
 router.post('/:id/courier-book', (req, res) => {
   try {
     const { id } = req.params;
-    const { courier_name = 'Pathao Courier', recipient_city, weight_kg = 1, special_instruction = '' } = req.body;
+    const { courier_name = 'Pathao Courier' } = req.body;
 
     const order = db.findOne('orders', o => (o.id === id || o.order_number === id), req.tenant.id);
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Generate authentic mock tracking & consignment details
     const courierPrefix = courier_name.includes('Pathao') ? 'PT' : courier_name.includes('Steadfast') ? 'STDF' : 'RDX';
     const trackingId = `${courierPrefix}-${Math.floor(100000 + Math.random() * 900000)}`;
     const consignmentId = `CN-${Date.now().toString().slice(-8)}`;
@@ -401,7 +383,6 @@ router.post('/:id/courier-book', (req, res) => {
   }
 });
 
-// GET /api/orders/:id/invoice (Printable Invoice / Packing Slip Generator Data)
 router.get('/:id/invoice', (req, res) => {
   const order = db.findOne('orders', o => (o.id === req.params.id || o.order_number === req.params.id), req.tenant.id);
   if (!order) {
@@ -445,4 +426,4 @@ router.get('/:id/invoice', (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;

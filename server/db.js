@@ -1,7 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { v4 as uuidv4 } from 'uuid';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const DB_PATH = path.join(__dirname, '../data/db.json');
 
 class Database {
@@ -52,7 +55,6 @@ class Database {
     }
   }
 
-  // Scoped collection accessor
   getCollection(name) {
     if (!this.data[name]) {
       this.data[name] = [];
@@ -60,15 +62,12 @@ class Database {
     return this.data[name];
   }
 
-  // Generic Find with predicate or query object
   find(collectionName, query = {}, tenantId = undefined) {
     const coll = this.getCollection(collectionName);
     return coll.filter(item => {
-      // If tenantId is provided and collection is tenant-scoped, enforce isolation
       if (tenantId !== undefined && item.tenant_id !== undefined) {
         if (item.tenant_id !== tenantId) return false;
       }
-      // Query filter
       if (typeof query === 'function') {
         return query(item);
       }
@@ -119,7 +118,7 @@ class Database {
     coll[index] = {
       ...coll[index],
       ...updates,
-      id, // Preserve ID
+      id,
       ...(tenantId && coll[index].tenant_id ? { tenant_id: coll[index].tenant_id } : {}),
       updated_at: new Date().toISOString()
     };
@@ -147,7 +146,6 @@ class Database {
     return this.find(collectionName, query, tenantId).length;
   }
 
-  // Reset/re-seed helper
   reset() {
     this.data = {
       tenants: [],
@@ -170,4 +168,4 @@ class Database {
 }
 
 const db = new Database();
-module.exports = db;
+export default db;

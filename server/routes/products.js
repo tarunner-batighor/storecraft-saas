@@ -1,10 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../db');
-const { requireTenant } = require('../middleware/tenant');
-const { verifyAuth, requireTenantStaff } = require('../middleware/auth');
+import express from 'express';
+import db from '../db.js';
+import { requireTenant } from '../middleware/tenant.js';
+import { verifyAuth, requireTenantStaff } from '../middleware/auth.js';
 
-// All product routes are scoped to the active tenant
+const router = express.Router();
+
 router.use(requireTenant);
 
 // GET /api/products (Public Storefront & Admin listing)
@@ -26,13 +26,10 @@ router.get('/', (req, res) => {
 
     let products = db.find('products', {}, req.tenant.id);
 
-    // Filter published (if non-staff)
-    // We allow passing ?all=true if authenticated staff
     if (req.query.all !== 'true') {
       products = products.filter(p => p.is_published !== false);
     }
 
-    // Category filter
     if (category) {
       const cat = db.findOne('categories', c => c.id === category || c.slug === category, req.tenant.id);
       if (cat) {
@@ -40,7 +37,6 @@ router.get('/', (req, res) => {
       }
     }
 
-    // Brand filter
     if (brand) {
       const b = db.findOne('brands', br => br.id === brand || br.slug === brand, req.tenant.id);
       if (b) {
@@ -48,7 +44,6 @@ router.get('/', (req, res) => {
       }
     }
 
-    // Featured / Flash Deal filter
     if (featured === 'true') {
       products = products.filter(p => p.is_featured);
     }
@@ -56,7 +51,6 @@ router.get('/', (req, res) => {
       products = products.filter(p => p.is_flash_deal);
     }
 
-    // Search query
     if (search && search.trim()) {
       const q = search.toLowerCase().trim();
       products = products.filter(p =>
@@ -67,7 +61,6 @@ router.get('/', (req, res) => {
       );
     }
 
-    // Price range
     if (min_price !== undefined && min_price !== '') {
       products = products.filter(p => p.price >= Number(min_price));
     }
@@ -75,12 +68,10 @@ router.get('/', (req, res) => {
       products = products.filter(p => p.price <= Number(max_price));
     }
 
-    // In stock
     if (in_stock === 'true') {
       products = products.filter(p => (p.stock_quantity || 0) > 0);
     }
 
-    // Sorting
     if (sort === 'price_asc') {
       products.sort((a, b) => a.price - b.price);
     } else if (sort === 'price_desc') {
@@ -90,11 +81,9 @@ router.get('/', (req, res) => {
     } else if (sort === 'popular') {
       products.sort((a, b) => (b.rating_count || 0) - (a.rating_count || 0));
     } else {
-      // Newest
       products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
 
-    // Populate category & brand names
     const categories = db.find('categories', {}, req.tenant.id);
     const brands = db.find('brands', {}, req.tenant.id);
     const catMap = Object.fromEntries(categories.map(c => [c.id, c.name]));
@@ -120,7 +109,6 @@ router.get('/', (req, res) => {
 // GET /api/products/categories
 router.get('/categories', (req, res) => {
   const categories = db.find('categories', {}, req.tenant.id);
-  // Add product count per category
   const products = db.find('products', {}, req.tenant.id);
   const result = categories.map(cat => ({
     ...cat,
@@ -146,8 +134,6 @@ router.get('/:idOrSlug', (req, res) => {
   const category = product.category_id ? db.findById('categories', product.category_id, req.tenant.id) : null;
   const brand = product.brand_id ? db.findById('brands', product.brand_id, req.tenant.id) : null;
   const reviews = db.find('reviews', { product_id: product.id }, req.tenant.id);
-
-  // Related products
   const related = db.find('products', p => p.id !== product.id && p.category_id === product.category_id, req.tenant.id).slice(0, 4);
 
   res.json({
@@ -166,7 +152,7 @@ router.get('/:idOrSlug', (req, res) => {
 router.use(verifyAuth);
 router.use(requireTenantStaff);
 
-// POST /api/products (Create Product with plan limit check)
+// POST /api/products
 router.post('/', (req, res) => {
   try {
     const currentCount = db.count('products', {}, req.tenant.id);
@@ -244,7 +230,6 @@ router.post('/', (req, res) => {
       rating_count: 0
     }, req.tenant.id);
 
-    // Audit log
     db.insert('audit_logs', {
       tenant_id: req.tenant.id,
       user_id: req.user.id,
@@ -265,7 +250,6 @@ router.post('/', (req, res) => {
   }
 });
 
-// PUT /api/products/:id (Update Product)
 router.put('/:id', (req, res) => {
   try {
     const { id } = req.params;
@@ -292,7 +276,6 @@ router.put('/:id', (req, res) => {
   }
 });
 
-// PATCH /api/products/:id/stock (Quick Stock Adjust)
 router.patch('/:id/stock', (req, res) => {
   const { id } = req.params;
   const { stock_quantity } = req.body;
@@ -303,7 +286,6 @@ router.patch('/:id/stock', (req, res) => {
   res.json({ success: true, message: 'Stock updated', product: updated });
 });
 
-// DELETE /api/products/:id
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
   const deleted = db.delete('products', id, req.tenant.id);
@@ -313,7 +295,6 @@ router.delete('/:id', (req, res) => {
   res.json({ success: true, message: 'Product deleted successfully' });
 });
 
-// ================= CATEGORY MANAGEMENT =================
 router.post('/categories', (req, res) => {
   const { name, slug, description, image, icon, is_featured, sort_order } = req.body;
   if (!name) return res.status(400).json({ success: false, message: 'Category name is required' });
@@ -343,4 +324,4 @@ router.delete('/categories/:id', (req, res) => {
   res.json({ success: true, message: 'Category deleted' });
 });
 
-module.exports = router;
+export default router;
