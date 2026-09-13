@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#0369a1"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- App Icon Rounded Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Inner Border -->
+  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="#38bdf8" stroke-width="4" stroke-opacity="0.3"/>
+
+  <!-- Center Store / Shopping Bag Graphic -->
+  <g filter="url(#shadow)" transform="translate(40, 20)">
+    <!-- Bag Body -->
+    <path d="M120 180 L312 180 L340 400 C340 416 328 428 312 428 L120 428 C104 428 92 416 92 400 L120 180 Z" fill="#ffffff"/>
+    
+    <!-- Bag Handle -->
+    <path d="M166 180 V130 C166 102 188 80 216 80 C244 80 266 102 266 130 V180" fill="none" stroke="url(#goldGrad)" stroke-width="26" stroke-linecap="round"/>
+    
+    <!-- Accent Store Roof Lines inside Bag -->
+    <path d="M160 250 L216 200 L272 250" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Star Sparkle -->
+    <polygon points="216,280 226,305 252,305 231,320 239,345 216,330 193,345 201,320 180,305 206,305" fill="url(#goldGrad)"/>
+    
+    <!-- Glowing Brand Dot -->
+    <circle cx="300" cy="220" r="16" fill="#10b981"/>
+  </g>
+</svg>
