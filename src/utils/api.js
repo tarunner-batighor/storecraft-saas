@@ -1,26 +1,47 @@
-// Client API Helper with auto-attached Tenant and Auth headers
+// Client API Helper with dynamic URL and Tenant Header resolution
 
-let currentTenantSlug = 'gadgetvibe';
-let currentTenantId = 'tenant-gadgetvibe';
+let currentTenantSlug = 'sarwarbooks';
+let currentTenantId = null;
 
 export function setApiTenant(slug, id) {
-  if (slug) currentTenantSlug = slug;
-  if (id) currentTenantId = id;
+  if (slug) {
+    currentTenantSlug = slug;
+    localStorage.setItem('storecraft_tenant_slug', slug);
+  }
+  if (id) {
+    currentTenantId = id;
+    localStorage.setItem('storecraft_tenant_id', id);
+  }
 }
 
 export function getApiTenantSlug() {
+  if (typeof window !== 'undefined') {
+    const match = window.location.pathname.match(/\/store\/([^/]+)/);
+    if (match && match[1]) {
+      return match[1];
+    }
+    return localStorage.getItem('storecraft_tenant_slug') || currentTenantSlug;
+  }
   return currentTenantSlug;
 }
 
 export async function request(endpoint, options = {}) {
   const token = localStorage.getItem('storecraft_token');
-  const storedSlug = localStorage.getItem('storecraft_tenant_slug') || currentTenantSlug;
-  const storedId = localStorage.getItem('storecraft_tenant_id') || currentTenantId;
+  
+  // Always prioritize the slug in the URL path if currently on a storefront
+  let activeSlug = currentTenantSlug;
+  if (typeof window !== 'undefined') {
+    const match = window.location.pathname.match(/\/store\/([^/]+)/);
+    if (match && match[1]) {
+      activeSlug = match[1];
+    } else {
+      activeSlug = localStorage.getItem('storecraft_tenant_slug') || currentTenantSlug;
+    }
+  }
 
   const headers = {
     'Content-Type': 'application/json',
-    ...(storedSlug ? { 'x-tenant-slug': storedSlug } : {}),
-    ...(storedId ? { 'x-tenant-id': storedId } : {}),
+    ...(activeSlug ? { 'x-tenant-slug': activeSlug } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers || {})
   };

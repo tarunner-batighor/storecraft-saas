@@ -1,17 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api, setApiTenant } from '../utils/api';
+import { api, setApiTenant, getApiTenantSlug } from '../utils/api';
 
 const TenantContext = createContext(null);
 
 export function TenantProvider({ children }) {
   const [currentSlug, setCurrentSlug] = useState(() => {
-    return localStorage.getItem('storecraft_tenant_slug') || 'sarwarbooks';
+    return getApiTenantSlug() || 'sarwarbooks';
   });
   const [storeInfo, setStoreInfo] = useState(null);
   const [availableStores, setAvailableStores] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Load available stores list
   const fetchAvailableStores = async () => {
     try {
       const res = await api.get('/public/stores');
@@ -23,9 +22,8 @@ export function TenantProvider({ children }) {
     }
   };
 
-  // Fetch current store branding & info
   const fetchStoreInfo = async (slug) => {
-    const targetSlug = slug || 'sarwarbooks';
+    const targetSlug = slug || currentSlug || 'sarwarbooks';
     setLoading(true);
     try {
       setApiTenant(targetSlug);
@@ -60,9 +58,9 @@ export function TenantProvider({ children }) {
   }, [currentSlug]);
 
   const switchTenant = (slug) => {
-    if (slug && slug !== currentSlug) {
+    if (slug) {
       setCurrentSlug(slug);
-      localStorage.setItem('storecraft_tenant_slug', slug);
+      setApiTenant(slug);
       fetchStoreInfo(slug);
     }
   };

@@ -2,7 +2,7 @@ import db from '../db.js';
 
 export function resolveTenant(req, res, next) {
   try {
-    let tenantIdentifier = req.headers['x-tenant-id'] || req.headers['x-tenant-slug'];
+    let tenantIdentifier = req.headers['x-tenant-slug'] || req.headers['x-tenant-id'];
     
     if (!tenantIdentifier && (req.query.tenant || req.query.store)) {
       tenantIdentifier = req.query.tenant || req.query.store;
@@ -24,7 +24,7 @@ export function resolveTenant(req, res, next) {
     }
 
     if (tenantIdentifier) {
-      const tenant = db.findOne('tenants', t => t.id === tenantIdentifier || t.slug === tenantIdentifier);
+      const tenant = db.findOne('tenants', t => t.slug === tenantIdentifier || t.id === tenantIdentifier);
       if (tenant) {
         req.tenant = tenant;
         req.tenantId = tenant.id;
@@ -43,7 +43,7 @@ export function requireTenant(req, res, next) {
     return res.status(404).json({
       success: false,
       error: 'TenantNotFound',
-      message: 'Store not found. Please specify a valid x-tenant-id or ?store=slug.'
+      message: 'Store not found. Please specify a valid x-tenant-slug or visit /store/:slug.'
     });
   }
 
