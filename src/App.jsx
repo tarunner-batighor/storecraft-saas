@@ -10,6 +10,7 @@ import DemoSwitcherBar from './components/common/DemoSwitcherBar';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import StorefrontHeader from './components/storefront/StorefrontHeader';
 import StorefrontFooter from './components/storefront/StorefrontFooter';
+import StoreMobileBottomBar from './components/storefront/StoreMobileBottomBar';
 import CartDrawer from './components/storefront/CartDrawer';
 
 // Auth Pages
@@ -62,6 +63,8 @@ function StorefrontLayout() {
       </div>
       <StorefrontFooter />
       <CartDrawer />
+      {/* High-density Mobile App Bottom Dock */}
+      <StoreMobileBottomBar />
     </div>
   );
 }
@@ -80,7 +83,7 @@ export default function App() {
         <TenantProvider>
           <AuthProvider>
             <CartProvider>
-              {/* Global Store & Demo Switcher Bar */}
+              {/* Global Store & Demo Switcher Bar (Hidden on customer storefronts) */}
               <DemoSwitcherBar />
 
               <Routes>
