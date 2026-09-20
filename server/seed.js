@@ -177,6 +177,12 @@ export function seedDatabase() {
         facebook: 'https://facebook.com/sarwarbooks.bd',
         instagram: 'https://instagram.com/sarwarbooks'
       },
+      chatbot: {
+        enabled: true,
+        url: 'https://bot-platform-2qwf.onrender.com/chat/aaluh0fo',
+        title: 'বই সহকারী AI Bot',
+        welcome_message: 'আসসালামু আলাইকুম! বই বা অর্ডার সম্পর্কিত যেকোনো তথ্যের জন্য চ্যাট করুন।'
+      },
       hero_slides: [
         {
           id: 'slide-sb-1',

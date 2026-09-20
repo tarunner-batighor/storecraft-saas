@@ -11,6 +11,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import StorefrontHeader from './components/storefront/StorefrontHeader';
 import StorefrontFooter from './components/storefront/StorefrontFooter';
 import StoreMobileBottomBar from './components/storefront/StoreMobileBottomBar';
+import StoreChatbotWidget from './components/storefront/StoreChatbotWidget';
 import CartDrawer from './components/storefront/CartDrawer';
 
 // Auth Pages
@@ -65,6 +66,8 @@ function StorefrontLayout() {
       <CartDrawer />
       {/* High-density Mobile App Bottom Dock */}
       <StoreMobileBottomBar />
+      {/* Floating AI & Auto-Reply Chatbot Widget */}
+      <StoreChatbotWidget />
     </div>
   );
 }
